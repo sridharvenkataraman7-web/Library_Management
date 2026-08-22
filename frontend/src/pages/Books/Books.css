@@ -1,0 +1,41 @@
+.books-page { padding: 48px 80px; }
+
+.books-header { margin-bottom: 32px; }
+.books-header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.books-header p { color: var(--text-secondary); }
+
+.search-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+.search-bar input { flex: 1; }
+.search-bar select { width: 200px; }
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.book-card { position: relative; }
+.book-status-badge { margin-bottom: 12px; }
+
+.badge-available, .badge-unavailable {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-weight: 600;
+}
+.badge-available { background: rgba(67, 233, 123, 0.15); color: var(--accent); }
+.badge-unavailable { background: rgba(255, 101, 132, 0.15); color: var(--secondary); }
+
+.book-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.book-author { color: var(--text-secondary); font-size: 14px; margin-bottom: 4px; }
+.book-isbn { color: var(--text-secondary); font-size: 12px; margin-bottom: 12px; }
+.book-location {
+  font-size: 13px;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+.book-btn { width: 100%; justify-content: center; }
