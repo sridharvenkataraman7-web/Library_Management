@@ -57,14 +57,14 @@ export const LibrarianDashboard = () => {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header Banner */}
-      <div className="p-6 lg:p-8 rounded-3xl bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-orange-500/20">
+      <div className="p-6 lg:p-8 rounded-3xl bg-gradient-to-r from-purple-800 via-purple-700 to-indigo-800 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-purple-500/25 border border-purple-500/30">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white border border-white/30 text-xs font-semibold">
-            <ShieldAlert className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-purple-200 border border-white/20 text-xs font-semibold backdrop-blur-md">
+            <ShieldAlert className="w-3.5 h-3.5 text-purple-300" />
             <span>Campus Digital Librarian Portal</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Librarian Command Desk</h1>
-          <p className="text-xs sm:text-sm text-orange-50 max-w-xl">
+          <p className="text-xs sm:text-sm text-purple-100/90 max-w-xl">
             Real-time circulation monitoring, queue hold processing, inventory stock adjustments & barcode scanner simulator.
           </p>
         </div>
@@ -73,65 +73,65 @@ export const LibrarianDashboard = () => {
           onClick={() => {
             setEditingBook({});
           }}
-          className="px-4 py-3 rounded-2xl bg-white text-orange-600 hover:bg-orange-50 text-xs font-extrabold shadow-lg transition-all flex items-center gap-2 shrink-0"
+          className="px-4 py-3 rounded-2xl bg-white text-purple-950 hover:bg-purple-50 text-xs font-extrabold shadow-lg transition-all flex items-center gap-2 shrink-0"
         >
-          <Plus className="w-4 h-4 text-orange-600" />
+          <Plus className="w-4 h-4 text-purple-600" />
           <span>Add New Book Copy</span>
         </button>
       </div>
 
       {/* Librarian Stats Overview Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Inventory Stock</span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">{totalCopies}</p>
-          <p className="text-[11px] text-slate-500 mt-1">Across all departments</p>
+        <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-sm">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Inventory Stock</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-white mt-1">{totalCopies}</p>
+          <p className="text-[11px] text-slate-400 mt-1">Across all departments</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ready on Shelves</span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">{availableCopies}</p>
-          <p className="text-[11px] text-emerald-700 mt-1 font-semibold">Available for checkout</p>
+        <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-sm">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Ready on Shelves</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1">{availableCopies}</p>
+          <p className="text-[11px] text-emerald-300 mt-1 font-semibold">Available for checkout</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Student Loans</span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-orange-600 mt-1">{activeLoansCount}</p>
-          <p className="text-[11px] text-orange-700 mt-1 font-semibold">Currently issued</p>
+        <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-sm">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Student Loans</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-purple-400 mt-1">{activeLoansCount}</p>
+          <p className="text-[11px] text-purple-300 mt-1 font-semibold">Currently issued</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Queue Holds</span>
-          <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">{totalHoldsCount}</p>
-          <p className="text-[11px] text-amber-700 mt-1 font-semibold">Students waiting in line</p>
+        <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-sm">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending Queue Holds</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-indigo-400 mt-1">{totalHoldsCount}</p>
+          <p className="text-[11px] text-indigo-300 mt-1 font-semibold">Students waiting in line</p>
         </div>
       </div>
 
       {/* Scanner Simulator & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Circulation Barcode Scanner Simulator */}
-        <div className="lg:col-span-2 p-6 rounded-3xl bg-white border border-slate-200 space-y-4 shadow-sm">
+        <div className="lg:col-span-2 p-6 rounded-3xl bg-zinc-900 border border-zinc-800 space-y-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Scan className="w-5 h-5 text-orange-600" />
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <Scan className="w-5 h-5 text-purple-400" />
               <span>Circulation Barcode Scanner Simulator</span>
             </h3>
-            <span className="text-xs font-mono font-bold text-orange-600">Desk Kiosk Mode</span>
+            <span className="text-xs font-mono font-bold text-purple-400">Desk Kiosk Mode</span>
           </div>
 
           <form onSubmit={handleSimulateScan} className="space-y-3">
             <div className="relative">
-              <QrCode className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <QrCode className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <input
                 type="text"
                 placeholder="Scan or enter Student ID, Book Barcode or ISBN (e.g. 978-0134685991)..."
                 value={scanInput}
                 onChange={(e) => setScanInput(e.target.value)}
-                className="w-full pl-12 pr-28 py-3.5 rounded-2xl glass-input text-slate-900 text-xs sm:text-sm"
+                className="w-full pl-12 pr-28 py-3.5 rounded-2xl glass-input text-white text-xs sm:text-sm"
               />
               <button
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/20"
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-md shadow-purple-600/30"
               >
                 Simulate Scan
               </button>
@@ -143,16 +143,16 @@ export const LibrarianDashboard = () => {
             <div
               className={`p-4 rounded-2xl border text-xs space-y-2 ${
                 scanResult.success
-                  ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-                  : "bg-rose-50 border-rose-200 text-rose-800"
+                  ? "bg-emerald-950/80 border-emerald-500/30 text-emerald-300"
+                  : "bg-rose-950/80 border-rose-500/30 text-rose-300"
               }`}
             >
               <p className="font-bold flex items-center gap-2">
-                {scanResult.success ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 text-rose-600" />}
+                {scanResult.success ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <AlertTriangle className="w-4 h-4 text-rose-400" />}
                 <span>{scanResult.message}</span>
               </p>
               {scanResult.book && (
-                <div className="flex items-center justify-between text-[11px] pt-2 border-t border-emerald-200/60 font-mono">
+                <div className="flex items-center justify-between text-[11px] pt-2 border-t border-emerald-500/20 font-mono">
                   <span>Author: {scanResult.book.author}</span>
                   <span>Stock: {scanResult.book.availableCopies} available</span>
                   <span>Status: {scanResult.book.status}</span>
@@ -163,30 +163,30 @@ export const LibrarianDashboard = () => {
         </div>
 
         {/* Quick Admin Actions */}
-        <div className="p-6 rounded-3xl bg-white border border-slate-200 space-y-4 shadow-sm">
-          <h3 className="text-base font-bold text-slate-900">Admin Actions</h3>
+        <div className="p-6 rounded-3xl bg-zinc-900 border border-zinc-800 space-y-4 shadow-sm">
+          <h3 className="text-base font-bold text-white">Admin Actions</h3>
 
           <div className="space-y-2">
             <button
               onClick={() => setActiveTab("librarian-catalogue")}
-              className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-orange-50 border border-slate-200 text-left transition-all group flex items-center justify-between"
+              className="w-full p-3 rounded-2xl bg-zinc-950 hover:bg-purple-950/40 border border-zinc-800 text-left transition-all group flex items-center justify-between"
             >
               <div>
-                <p className="text-xs font-bold text-slate-900 group-hover:text-orange-600">Catalogue Manager</p>
-                <p className="text-[11px] text-slate-500">Edit titles, shelf codes & copy counts</p>
+                <p className="text-xs font-bold text-white group-hover:text-purple-400">Catalogue Manager</p>
+                <p className="text-[11px] text-slate-400">Edit titles, shelf codes & copy counts</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-600 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-purple-400 transition-transform group-hover:translate-x-1" />
             </button>
 
             <button
               onClick={() => setActiveTab("librarian-reservations")}
-              className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-orange-50 border border-slate-200 text-left transition-all group flex items-center justify-between"
+              className="w-full p-3 rounded-2xl bg-zinc-950 hover:bg-purple-950/40 border border-zinc-800 text-left transition-all group flex items-center justify-between"
             >
               <div>
-                <p className="text-xs font-bold text-slate-900 group-hover:text-orange-600">Master Reservations Desk</p>
-                <p className="text-[11px] text-slate-500">Process student hold queues & mark pickups</p>
+                <p className="text-xs font-bold text-white group-hover:text-purple-400">Master Reservations Desk</p>
+                <p className="text-[11px] text-slate-400">Process student hold queues & mark pickups</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-600 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-purple-400 transition-transform group-hover:translate-x-1" />
             </button>
           </div>
         </div>

@@ -54,10 +54,10 @@ const AppContent = () => {
       <AddEditBookModal />
 
       {/* Bottom Footer Ticker */}
-      <footer className="border-t border-slate-800/80 py-4 px-6 text-center text-xs text-slate-500 bg-slate-950/60">
+      <footer className="border-t border-zinc-800 py-4 px-6 text-center text-xs text-slate-500 bg-zinc-950">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <p>© 2026 SmartLib Campus Ecosystem. Smart Digital Library Reservation System.</p>
-          <p className="font-mono text-indigo-400">Campus Status: All Systems Operational</p>
+          <p className="font-mono text-purple-400">Campus Status: All Systems Operational</p>
         </div>
       </footer>
     </div>

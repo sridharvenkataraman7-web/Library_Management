@@ -62,13 +62,13 @@ export const SmartBookSearch = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header Banner */}
-      <div className="p-6 rounded-3xl bg-white border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+      <div className="p-6 rounded-3xl bg-zinc-900 border border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
         <div>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
-            <Search className="w-6 h-6 text-orange-600" />
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2">
+            <Search className="w-6 h-6 text-purple-400" />
             <span>Smart Book Catalogue</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Search 10,000+ campus textbooks, check live shelf stock, or place queue reservations instantly.
           </p>
         </div>
@@ -76,25 +76,25 @@ export const SmartBookSearch = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setActiveTab("book-radar")}
-            className="px-3.5 py-2 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200 text-xs font-bold transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 border border-purple-500/30 text-xs font-bold transition-all flex items-center gap-1.5"
           >
-            <Radio className="w-4 h-4 text-orange-500 animate-pulse" />
+            <Radio className="w-4 h-4 text-purple-400 animate-pulse" />
             <span>Scan Book Radar</span>
           </button>
         </div>
       </div>
 
       {/* Filter Toolbar Card */}
-      <div className="p-5 rounded-3xl bg-white border border-slate-200 space-y-4 shadow-sm">
+      <div className="p-5 rounded-3xl bg-zinc-900 border border-zinc-800 space-y-4 shadow-sm">
         {/* Search Bar Input */}
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input
             type="text"
             placeholder="Search by Title, Author, ISBN, Subject or Shelf Code..."
             value={globalSearch}
             onChange={(e) => setGlobalSearch(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 rounded-2xl glass-input text-slate-900 text-xs sm:text-sm placeholder:text-slate-400"
+            className="w-full pl-11 pr-4 py-3 rounded-2xl glass-input text-white text-xs sm:text-sm placeholder:text-slate-500"
           />
         </div>
 
@@ -102,15 +102,15 @@ export const SmartBookSearch = () => {
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
           {/* Department Badges */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Dept:</span>
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">Dept:</span>
             {departments.map((dept) => (
               <button
                 key={dept}
                 onClick={() => setSelectedDept(dept)}
                 className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
                   selectedDept === dept
-                    ? "bg-orange-600 text-white shadow-md shadow-orange-500/25"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
+                    ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                    : "bg-zinc-950 text-slate-400 hover:bg-zinc-800 border border-zinc-800"
                 }`}
               >
                 {dept}
@@ -123,7 +123,7 @@ export const SmartBookSearch = () => {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="py-1.5 px-3 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-semibold focus:outline-none focus:border-orange-500"
+              className="py-1.5 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-slate-300 text-xs font-semibold focus:outline-none focus:border-purple-500"
             >
               <option value="All">All Availability</option>
               <option value="Available">🟢 Available Now</option>
@@ -134,7 +134,7 @@ export const SmartBookSearch = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="py-1.5 px-3 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-semibold focus:outline-none focus:border-orange-500"
+              className="py-1.5 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-slate-300 text-xs font-semibold focus:outline-none focus:border-purple-500"
             >
               <option value="title">Sort: Title A-Z</option>
               <option value="rating">Sort: Top Rated ⭐</option>
@@ -146,17 +146,17 @@ export const SmartBookSearch = () => {
 
       {/* Results Header */}
       <div className="flex items-center justify-between px-1">
-        <p className="text-xs font-bold text-slate-500">
-          Showing <span className="text-slate-900">{filtered.length}</span> catalogue books
+        <p className="text-xs font-bold text-slate-400">
+          Showing <span className="text-white">{filtered.length}</span> catalogue books
         </p>
       </div>
 
       {/* Book Grid */}
       {filtered.length === 0 ? (
-        <div className="p-12 text-center rounded-3xl bg-white border border-slate-200 space-y-3">
-          <BookOpen className="w-12 h-12 text-slate-300 mx-auto" />
-          <h3 className="text-base font-bold text-slate-800">No books found matching criteria</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+        <div className="p-12 text-center rounded-3xl bg-zinc-900 border border-zinc-800 space-y-3">
+          <BookOpen className="w-12 h-12 text-slate-600 mx-auto" />
+          <h3 className="text-base font-bold text-white">No books found matching criteria</h3>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
             Try adjusting your search query or reset department filters to see available books.
           </p>
         </div>
@@ -168,13 +168,13 @@ export const SmartBookSearch = () => {
             return (
               <div
                 key={book.id}
-                className="p-4 rounded-2xl glass-card border-slate-200 flex flex-col justify-between space-y-4 hover:border-orange-500/50 transition-all group shadow-sm"
+                className="p-4 rounded-2xl glass-card border-zinc-800 flex flex-col justify-between space-y-4 hover:border-purple-500/50 transition-all group shadow-sm"
               >
                 <div className="space-y-3">
                   {/* Book Cover Image & Badges */}
                   <div
                     onClick={() => setSelectedBook(book)}
-                    className="relative overflow-hidden rounded-xl aspect-[3/4] bg-slate-100 cursor-pointer"
+                    className="relative overflow-hidden rounded-xl aspect-[3/4] bg-zinc-950 cursor-pointer"
                   >
                     <img
                       src={book.coverUrl}
@@ -188,7 +188,7 @@ export const SmartBookSearch = () => {
                         book.status === "Available"
                           ? "bg-emerald-600 text-white"
                           : book.status === "Reserved"
-                          ? "bg-amber-600 text-white"
+                          ? "bg-purple-600 text-white"
                           : "bg-rose-600 text-white"
                       }`}
                     >
@@ -203,8 +203,8 @@ export const SmartBookSearch = () => {
                       }}
                       className={`absolute top-2 left-2 p-1.5 rounded-xl transition-all ${
                         isWishlisted
-                          ? "bg-orange-600 text-white shadow-md"
-                          : "bg-white/80 backdrop-blur-md text-slate-700 hover:bg-white"
+                          ? "bg-purple-600 text-white shadow-md"
+                          : "bg-zinc-950/80 backdrop-blur-md text-slate-300 hover:bg-zinc-900"
                       }`}
                       title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                     >
@@ -216,34 +216,34 @@ export const SmartBookSearch = () => {
                   <div>
                     <h3
                       onClick={() => setSelectedBook(book)}
-                      className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 cursor-pointer group-hover:text-orange-600 transition-colors"
+                      className="text-xs sm:text-sm font-bold text-white line-clamp-1 cursor-pointer group-hover:text-purple-400 transition-colors"
                     >
                       {book.title}
                     </h3>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">{book.author}</p>
+                    <p className="text-[11px] text-slate-400 truncate mt-0.5">{book.author}</p>
                   </div>
 
                   {/* Metadata Chips */}
                   <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
-                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                    <span className="px-2 py-0.5 rounded bg-zinc-950 text-slate-300 border border-zinc-800 font-medium">
                       {book.department}
                     </span>
-                    <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold border border-amber-200">
+                    <span className="px-2 py-0.5 rounded bg-purple-950/60 text-purple-300 font-semibold border border-purple-500/30">
                       ⭐ {book.rating}
                     </span>
                   </div>
 
                   {/* Stock & Shelf Info */}
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-[11px] font-mono">
-                    <span className="text-slate-600">
-                      Copies: <strong className="text-slate-900">{book.availableCopies}/{book.totalCopies}</strong>
+                  <div className="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between text-[11px] font-mono">
+                    <span className="text-slate-400">
+                      Copies: <strong className="text-white">{book.availableCopies}/{book.totalCopies}</strong>
                     </span>
                     <button
                       onClick={() => {
                         setMapTargetBook(book);
                         setActiveTab("shelf-locator");
                       }}
-                      className="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1"
+                      className="text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1"
                     >
                       <MapPin className="w-3 h-3" />
                       <span>{book.shelf}</span>
@@ -252,10 +252,10 @@ export const SmartBookSearch = () => {
                 </div>
 
                 {/* Card Action Buttons */}
-                <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
+                <div className="pt-2 border-t border-zinc-800 flex items-center gap-2">
                   <button
                     onClick={() => setSelectedBook(book)}
-                    className="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all"
+                    className="flex-1 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-slate-200 text-xs font-bold transition-all"
                   >
                     View Details
                   </button>
@@ -273,7 +273,7 @@ export const SmartBookSearch = () => {
                         setRadarTargetBook(book);
                         setActiveTab("book-radar");
                       }}
-                      className="flex-1 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-md shadow-orange-500/20 transition-all flex items-center justify-center gap-1"
+                      className="flex-1 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md shadow-purple-600/20 transition-all flex items-center justify-center gap-1"
                     >
                       <Radio className="w-3 h-3 animate-pulse" />
                       <span>Book Radar</span>
