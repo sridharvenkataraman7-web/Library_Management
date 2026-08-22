@@ -1,26 +1,35 @@
-export const INITIAL_STUDENT = {
+// INITIAL MOCK DATA FOR LIBRAX SYSTEM
+
+export const INITIAL_STUDENT_PROFILE = {
   id: "STU-2024-8842",
-  name: "Alex Morgan",
-  email: "alex.morgan@campus.edu",
+  name: "Madhumitha S",
+  email: "madhumitha@campus.edu",
   department: "Computer Science & AI",
-  year: "3rd Year Undergraduate",
+  year: "3rd Year B.Tech",
+  studentCardStatus: "Active / Verified",
   avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250",
-  borrowedCount: 2,
-  maxLoans: 5,
-  finesDue: "$0.00",
-  joinDate: "Sept 2023"
+  borrowedCount: 3,
+  reservationsCount: 1,
+  wishlistCount: 4,
+  finesDue: 0.0,
+  borrowLimit: 5
 };
 
-export const INITIAL_LIBRARIAN = {
-  id: "LIB-1004",
+export const INITIAL_STUDENT = INITIAL_STUDENT_PROFILE;
+
+export const INITIAL_LIBRARIAN_PROFILE = {
+  id: "STAFF-9021",
   name: "Dr. Sarah Lin",
   email: "sarah.lin@campus.edu",
   role: "Chief Digital Librarian",
   department: "Main Campus Central Library",
   avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=250",
-  shiftsToday: "08:00 - 17:00",
-  pendingApprovals: 3
+  activeDutyFloor: "Floor 2 & Central Circulation Desk"
 };
+
+export const INITIAL_LIBRARIAN = INITIAL_LIBRARIAN_PROFILE;
+
+export const INITIAL_WISHLIST = ["BK-101", "BK-102", "BK-104", "BK-108"];
 
 export const INITIAL_BOOKS = [
   {
@@ -28,104 +37,126 @@ export const INITIAL_BOOKS = [
     title: "Deep Learning",
     author: "Ian Goodfellow, Yoshua Bengio, Aaron Courville",
     isbn: "978-0262035613",
-    department: "Artificial Intelligence",
+    department: "Computer Science & AI",
     category: "Machine Learning",
-    subject: "Artificial Intelligence",
+    subject: "Computer Science & AI",
     publisher: "MIT Press",
     year: 2016,
     rating: 4.9,
     reviewsCount: 142,
-    totalCopies: 6,
+    totalCopies: 95,
     availableCopies: 0,
     status: "Checked Out", // "Available", "Reserved", "Checked Out"
     shelf: "C-14",
     shelfBay: "Bay 3, Shelf 2",
-    floor: "Floor 2",
+    floor: 2,
     section: "AI & Data Systems Wing",
     coverUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600",
-    description: "An introduction to a broad range of topics in deep learning, covering mathematical and conceptual background, deep learning techniques used in industry, and research perspectives.",
+    synopsis: "An introduction to a broad range of topics in deep learning, covering mathematical and conceptual background, deep learning techniques used in industry, and research perspectives.",
     queue: [
-      { studentId: "STU-2024-4190", name: "Reader #01", reservedDate: "2026-08-18", estReturn: "2026-08-25" },
-      { studentId: "STU-2024-8842", name: "YOU (Alex Morgan)", reservedDate: "2026-08-20", estReturn: "2026-08-28" },
-      { studentId: "STU-2024-9102", name: "Reader #03", reservedDate: "2026-08-21", estReturn: "2026-09-02" }
+      { studentId: "STU-2024-4190", name: "Reader #01", reservedAt: "2026-08-18", estReturn: "2026-08-25" },
+      { studentId: "STU-2024-8842", name: "YOU (Madhumitha S)", reservedAt: "2026-08-20", estReturn: "2026-08-28" },
+      { studentId: "STU-2024-9102", name: "Reader #03", reservedAt: "2026-08-21", estReturn: "2026-09-02" }
     ],
     estReturnDate: "2026-08-25",
-    tags: ["neural networks", "python", "ai", "deep learning", "algorithms"]
+    tags: ["neural networks", "python", "ai", "deep learning", "algorithms"],
+    directions: [
+      "Enter Central Library via South Main Gate",
+      "Take the Central Escalator to Floor 2",
+      "Head East towards the AI & Data Systems Wing",
+      "Locate Aisle C, Bay 3 -> Shelf C-14"
+    ]
   },
   {
     id: "BK-102",
     title: "Designing Data-Intensive Applications",
     author: "Martin Kleppmann",
     isbn: "978-1449373320",
-    department: "Computer Science",
+    department: "Computer Science & AI",
     category: "Distributed Systems",
     subject: "Software Engineering",
     publisher: "O'Reilly Media",
     year: 2017,
     rating: 4.95,
     reviewsCount: 230,
-    totalCopies: 8,
-    availableCopies: 3,
+    totalCopies: 110,
+    availableCopies: 92,
     status: "Available",
     shelf: "CS-08",
     shelfBay: "Bay 1, Shelf 4",
-    floor: "Floor 2",
+    floor: 2,
     section: "Systems & Architecture Aisle",
     coverUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600",
-    description: "The definitive guide to data system architecture, covering scalability, consistency, reliability, fault tolerance, and batch/stream processing.",
+    synopsis: "The definitive guide to data system architecture, covering scalability, consistency, reliability, fault tolerance, and batch/stream processing.",
     queue: [],
-    tags: ["databases", "distributed systems", "backend", "architecture", "scalability"]
+    tags: ["databases", "distributed systems", "backend", "architecture", "scalability"],
+    directions: [
+      "Enter Central Library via South Main Gate",
+      "Take Stairs or Elevator to Floor 2",
+      "Turn left into Systems & Architecture Aisle",
+      "Walk to Shelf CS-08 (Bay 1, Level 4)"
+    ]
   },
   {
     id: "BK-103",
     title: "Artificial Intelligence: A Modern Approach",
     author: "Stuart Russell, Peter Norvig",
     isbn: "978-0134610993",
-    department: "Artificial Intelligence",
+    department: "Computer Science & AI",
     category: "Core AI",
-    subject: "Artificial Intelligence",
+    subject: "Computer Science & AI",
     publisher: "Pearson",
     year: 2020,
     rating: 4.8,
     reviewsCount: 185,
-    totalCopies: 10,
+    totalCopies: 85,
     availableCopies: 0,
     status: "Reserved",
     shelf: "C-12",
     shelfBay: "Bay 2, Shelf 1",
-    floor: "Floor 2",
+    floor: 2,
     section: "AI & Data Systems Wing",
     coverUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&q=80&w=600",
-    description: "The leading textbook in Artificial Intelligence used in over 1,400 universities, detailing search algorithms, knowledge representation, probabilistic reasoning, and robotics.",
+    synopsis: "The leading textbook in Artificial Intelligence used in over 1,400 universities, detailing search algorithms, knowledge representation, probabilistic reasoning, and robotics.",
     queue: [
-      { studentId: "STU-2024-3321", name: "Reader #01", reservedDate: "2026-08-19", estReturn: "2026-08-24" }
+      { studentId: "STU-2024-3321", name: "Reader #01", reservedAt: "2026-08-19", estReturn: "2026-08-24" }
     ],
     estReturnDate: "2026-08-24",
-    tags: ["ai", "machine learning", "heuristics", "agents", "logic"]
+    tags: ["ai", "machine learning", "heuristics", "agents", "logic"],
+    directions: [
+      "Enter Central Library via Main Entrance",
+      "Proceed to Floor 2 AI Section",
+      "Locate Shelf C-12 in Bay 2"
+    ]
   },
   {
     id: "BK-104",
     title: "Introduction to Algorithms (CLRS)",
     author: "Cormen, Leiserson, Rivest, Stein",
     isbn: "978-0262046305",
-    department: "Computer Science",
+    department: "Computer Science & AI",
     category: "Algorithms & Data Structures",
-    subject: "Computer Science",
+    subject: "Computer Science & AI",
     publisher: "MIT Press",
     year: 2022,
     rating: 4.9,
     reviewsCount: 310,
-    totalCopies: 12,
-    availableCopies: 4,
+    totalCopies: 120,
+    availableCopies: 104,
     status: "Available",
     shelf: "CS-02",
     shelfBay: "Bay 4, Shelf 3",
-    floor: "Floor 2",
+    floor: 2,
     section: "Algorithms & Foundations Wing",
     coverUrl: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=600",
-    description: "Comprehensive coverage of modern algorithms, graph theory, dynamic programming, NP-completeness, and randomized algorithms.",
+    synopsis: "Comprehensive coverage of modern algorithms, graph theory, dynamic programming, NP-completeness, and randomized algorithms.",
     queue: [],
-    tags: ["algorithms", "data structures", "sorting", "graphs", "complexity"]
+    tags: ["algorithms", "data structures", "sorting", "graphs", "complexity"],
+    directions: [
+      "Take Floor 2 Central Corridor",
+      "Walk straight to Foundations Wing",
+      "Locate Shelf CS-02"
+    ]
   },
   {
     id: "BK-105",
@@ -139,17 +170,21 @@ export const INITIAL_BOOKS = [
     year: 2022,
     rating: 4.85,
     reviewsCount: 198,
-    totalCopies: 5,
-    availableCopies: 2,
+    totalCopies: 75,
+    availableCopies: 62,
     status: "Available",
     shelf: "DS-05",
     shelfBay: "Bay 2, Shelf 2",
-    floor: "Floor 2",
+    floor: 2,
     section: "Data Science Lab Section",
     coverUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=600",
-    description: "Through concrete examples, minimal theory, and production-ready Python code, Géron helps you gain an intuitive understanding of concepts and tools for building intelligent systems.",
+    synopsis: "Through concrete examples, minimal theory, and production-ready Python code, Géron helps you gain an intuitive understanding of concepts and tools for building intelligent systems.",
     queue: [],
-    tags: ["python", "machine learning", "tensorflow", "keras", "data science"]
+    tags: ["python", "machine learning", "tensorflow", "keras", "data science"],
+    directions: [
+      "Go to Floor 2 Data Science Section",
+      "Locate Bay 2, Shelf DS-05"
+    ]
   },
   {
     id: "BK-106",
@@ -163,21 +198,26 @@ export const INITIAL_BOOKS = [
     year: 2016,
     rating: 4.75,
     reviewsCount: 95,
-    totalCopies: 7,
-    availableCopies: 1,
+    totalCopies: 90,
+    availableCopies: 78,
     status: "Available",
     shelf: "M-09",
     shelfBay: "Bay 3, Shelf 1",
-    floor: "Floor 1",
+    floor: 1,
     section: "Mathematical Sciences Hall",
     coverUrl: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=600",
-    description: "Renowned for its clarity, Strang's linear algebra text presents vector spaces, eigenvalues, singular value decomposition, and linear transformations with practical intuition.",
+    synopsis: "Renowned for its clarity, Strang's linear algebra text presents vector spaces, eigenvalues, singular value decomposition, and linear transformations with practical intuition.",
     queue: [],
-    tags: ["math", "linear algebra", "matrices", "vectors", "eigenvalues"]
+    tags: ["math", "linear algebra", "matrices", "vectors", "eigenvalues"],
+    directions: [
+      "Stay on Floor 1 (Ground Level)",
+      "Head North to Mathematical Sciences Hall",
+      "Locate Shelf M-09"
+    ]
   },
   {
     id: "BK-107",
-    title: "Sears and Zemansky's University Physics with Modern Physics",
+    title: "Sears and Zemansky's University Physics",
     author: "Hugh D. Young, Roger A. Freedman",
     isbn: "978-0135159552",
     department: "Physics",
@@ -187,44 +227,52 @@ export const INITIAL_BOOKS = [
     year: 2019,
     rating: 4.7,
     reviewsCount: 112,
-    totalCopies: 9,
+    totalCopies: 105,
     availableCopies: 0,
     status: "Checked Out",
     shelf: "PHY-04",
     shelfBay: "Bay 1, Shelf 3",
-    floor: "Floor 1",
-    section: "Physical Sciences & Astronomy Wing",
+    floor: 1,
+    section: "Physical Sciences Wing",
     coverUrl: "https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&q=80&w=600",
-    description: "Comprehensive foundational physics text covering mechanics, thermodynamics, electromagnetism, optics, and relativity.",
+    synopsis: "Comprehensive foundational physics text covering mechanics, thermodynamics, electromagnetism, optics, and relativity.",
     queue: [
-      { studentId: "STU-2024-5501", name: "Reader #01", reservedDate: "2026-08-17", estReturn: "2026-08-23" }
+      { studentId: "STU-2024-5501", name: "Reader #01", reservedAt: "2026-08-17", estReturn: "2026-08-23" }
     ],
     estReturnDate: "2026-08-23",
-    tags: ["physics", "mechanics", "electromagnetism", "quantum physics", "thermodynamics"]
+    tags: ["physics", "mechanics", "electromagnetism", "thermodynamics"],
+    directions: [
+      "Floor 1 Physical Sciences Wing",
+      "Find Shelf PHY-04"
+    ]
   },
   {
     id: "BK-108",
     title: "Clean Code: A Handbook of Agile Software Craftsmanship",
-    author: "Robert C. Martin ('Uncle Bob')",
+    author: "Robert C. Martin",
     isbn: "978-0132350884",
-    department: "Computer Science",
+    department: "Computer Science & AI",
     category: "Software Design",
-    subject: "Computer Science",
+    subject: "Software Engineering",
     publisher: "Prentice Hall",
     year: 2008,
     rating: 4.88,
     reviewsCount: 420,
-    totalCopies: 6,
-    availableCopies: 2,
+    totalCopies: 95,
+    availableCopies: 82,
     status: "Available",
     shelf: "CS-11",
     shelfBay: "Bay 2, Shelf 4",
-    floor: "Floor 2",
+    floor: 2,
     section: "Software Design & Patterns Aisle",
     coverUrl: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=600",
-    description: "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees. Learn refactoring, unit testing, and design principles.",
+    synopsis: "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees. Learn refactoring, unit testing, and design principles.",
     queue: [],
-    tags: ["clean code", "refactoring", "java", "design patterns", "software engineering"]
+    tags: ["clean code", "refactoring", "java", "design patterns"],
+    directions: [
+      "Floor 2 Software Design Aisle",
+      "Find Shelf CS-11"
+    ]
   },
   {
     id: "BK-109",
@@ -238,269 +286,140 @@ export const INITIAL_BOOKS = [
     year: 2022,
     rating: 4.82,
     reviewsCount: 164,
-    totalCopies: 5,
+    totalCopies: 80,
     availableCopies: 0,
     status: "Reserved",
     shelf: "DS-02",
     shelfBay: "Bay 3, Shelf 3",
-    floor: "Floor 2",
+    floor: 2,
     section: "Data Science Lab Section",
     coverUrl: "https://images.unsplash.com/photo-1526379879527-8559ecfcaec0?auto=format&fit=crop&q=80&w=600",
-    description: "Get complete instructions for manipulating, processing, cleaning, and crunching datasets in Python using pandas, NumPy, and Jupyter.",
+    synopsis: "Get complete instructions for manipulating, processing, cleaning, and crunching datasets in Python using pandas, NumPy, and Jupyter.",
     queue: [
-      { studentId: "STU-2024-7712", name: "Reader #01", reservedDate: "2026-08-21", estReturn: "2026-08-26" }
+      { studentId: "STU-2024-9981", name: "Reader #01", reservedAt: "2026-08-20", estReturn: "2026-08-27" }
     ],
-    estReturnDate: "2026-08-26",
-    tags: ["python", "pandas", "numpy", "data analysis", "visualization"]
+    estReturnDate: "2026-08-27",
+    tags: ["pandas", "numpy", "python", "data analysis"],
+    directions: [
+      "Floor 2 Data Science Section",
+      "Shelf DS-02"
+    ]
   },
   {
     id: "BK-110",
-    title: "Zero to One: Notes on Startups, or How to Build the Future",
-    author: "Peter Thiel, Blake Masters",
-    isbn: "978-0804139298",
+    title: "Principles of Corporate Finance",
+    author: "Richard Brealey, Stewart Myers",
+    isbn: "978-1260013900",
     department: "Management",
-    category: "Entrepreneurship",
+    category: "Finance & Economics",
     subject: "Management",
-    publisher: "Crown Business",
-    year: 2014,
-    rating: 4.65,
-    reviewsCount: 290,
-    totalCopies: 4,
-    availableCopies: 2,
-    status: "Available",
-    shelf: "MGMT-01",
-    shelfBay: "Bay 1, Shelf 2",
-    floor: "Floor 3",
-    section: "Business & Innovation Hub",
-    coverUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600",
-    description: "The great secret of our time is that there are still uncharted frontiers to explore and new inventions to create. Learn how monopoly businesses create value.",
-    queue: [],
-    tags: ["startups", "business", "innovation", "management", "strategy"]
-  },
-  {
-    id: "BK-111",
-    title: "Sapiens: A Brief History of Humankind",
-    author: "Yuval Noah Harari",
-    isbn: "978-0062316097",
-    department: "Literature",
-    category: "History & Anthropology",
-    subject: "Humanities",
-    publisher: "Harper",
-    year: 2015,
-    rating: 4.92,
-    reviewsCount: 512,
-    totalCopies: 8,
-    availableCopies: 5,
-    status: "Available",
-    shelf: "LIT-08",
-    shelfBay: "Bay 5, Shelf 1",
-    floor: "Floor 3",
-    section: "General Humanities Reading Gallery",
-    coverUrl: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?auto=format&fit=crop&q=80&w=600",
-    description: "100,000 years ago, at least six human species inhabited the earth. Today there is just one: us. Yuval Noah Harari spans human history from the Cognitive Revolution.",
-    queue: [],
-    tags: ["history", "anthropology", "evolution", "humanities", "bestseller"]
-  },
-  {
-    id: "BK-112",
-    title: "Quantum Mechanics: Concepts and Applications",
-    author: "Nouredine Zettili",
-    isbn: "978-0470026793",
-    department: "Physics",
-    category: "Quantum Mechanics",
-    subject: "Physics",
-    publisher: "Wiley",
-    year: 2009,
-    rating: 4.86,
-    reviewsCount: 78,
-    totalCopies: 4,
-    availableCopies: 0,
-    status: "Checked Out",
-    shelf: "PHY-09",
-    shelfBay: "Bay 2, Shelf 2",
-    floor: "Floor 1",
-    section: "Physical Sciences & Astronomy Wing",
-    coverUrl: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=600",
-    description: "Provides a modern, comprehensive introduction to quantum mechanics with step-by-step mathematical derivations and solved problems.",
-    queue: [
-      { studentId: "STU-2024-8842", name: "YOU (Alex Morgan)", reservedDate: "2026-08-19", estReturn: "2026-08-27" }
-    ],
-    estReturnDate: "2026-08-27",
-    tags: ["quantum physics", "wave mechanics", "schrodinger", "physics", "math"]
-  },
-  {
-    id: "BK-113",
-    title: "Patterns of Enterprise Application Architecture",
-    author: "Martin Fowler",
-    isbn: "978-0321127426",
-    department: "Computer Science",
-    category: "Software Engineering",
-    subject: "Software Engineering",
-    publisher: "Addison-Wesley",
-    year: 2002,
-    rating: 4.78,
-    reviewsCount: 140,
-    totalCopies: 3,
-    availableCopies: 1,
-    status: "Available",
-    shelf: "CS-14",
-    shelfBay: "Bay 3, Shelf 4",
-    floor: "Floor 2",
-    section: "Software Design & Patterns Aisle",
-    coverUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=600",
-    description: "Practice-tested patterns for structuring enterprise software applications including domain model, data mapper, unit of work, and MVC.",
-    queue: [],
-    tags: ["architecture", "design patterns", "enterprise", "software", "fowler"]
-  },
-  {
-    id: "BK-114",
-    title: "1984",
-    author: "George Orwell",
-    isbn: "978-0451524935",
-    department: "Literature",
-    category: "Classic Fiction",
-    subject: "Literature",
-    publisher: "Signet Classic",
-    year: 1949,
-    rating: 4.95,
-    reviewsCount: 620,
-    totalCopies: 10,
-    availableCopies: 6,
-    status: "Available",
-    shelf: "LIT-02",
-    shelfBay: "Bay 1, Shelf 1",
-    floor: "Floor 3",
-    section: "General Humanities Reading Gallery",
-    coverUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=600",
-    description: "Winston Smith lives in a dystopian totalitarian state controlled by Big Brother where independent thinking is a thoughtcrime.",
-    queue: [],
-    tags: ["fiction", "dystopian", "classics", "literature", "orwell"]
-  },
-  {
-    id: "BK-115",
-    title: "Probability and Random Processes",
-    author: "Geoffrey Grimmett, David Stirzaker",
-    isbn: "978-0198572220",
-    department: "Mathematics",
-    category: "Stochastic Processes",
-    subject: "Mathematics",
-    publisher: "Oxford University Press",
+    publisher: "McGraw-Hill",
     year: 2020,
     rating: 4.7,
-    reviewsCount: 64,
-    totalCopies: 5,
-    availableCopies: 2,
+    reviewsCount: 88,
+    totalCopies: 115,
+    availableCopies: 98,
     status: "Available",
-    shelf: "M-04",
-    shelfBay: "Bay 2, Shelf 3",
-    floor: "Floor 1",
-    section: "Mathematical Sciences Hall",
-    coverUrl: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&q=80&w=600",
-    description: "A standard university text on probability theory, markov chains, random walks, and continuous-time stochastic processes.",
+    shelf: "MGT-04",
+    shelfBay: "Bay 1, Shelf 2",
+    floor: 3,
+    section: "Management & Economics Hall",
+    coverUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600",
+    synopsis: "Describes the theory and practice of corporate finance, focusing on financial decision making, capital structure, and risk valuation.",
     queue: [],
-    tags: ["probability", "math", "stochastic", "statistics", "markov"]
+    tags: ["finance", "business", "economics", "management"],
+    directions: [
+      "Take Elevator to Floor 3",
+      "Management & Economics Hall",
+      "Shelf MGT-04"
+    ]
+  }
+];
+
+export const INITIAL_STUDENT_LOANS = [
+  {
+    id: "LOAN-1001",
+    bookId: "BK-102",
+    bookTitle: "Designing Data-Intensive Applications",
+    author: "Martin Kleppmann",
+    issuedDate: "2026-08-10",
+    dueDate: "2026-08-24",
+    daysLeft: 2,
+    shelf: "CS-08",
+    coverUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600"
+  },
+  {
+    id: "LOAN-1002",
+    bookId: "BK-108",
+    bookTitle: "Clean Code: Software Craftsmanship",
+    author: "Robert C. Martin",
+    issuedDate: "2026-08-12",
+    dueDate: "2026-08-26",
+    daysLeft: 4,
+    shelf: "CS-11",
+    coverUrl: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=600"
   }
 ];
 
 export const INITIAL_NOTIFICATIONS = [
   {
     id: "NOTIF-01",
-    title: "Your reserved book is now available!",
-    message: "‘Designing Data-Intensive Applications’ is ready for pickup at Counter #2.",
-    bookId: "BK-102",
-    bookTitle: "Designing Data-Intensive Applications",
-    type: "BOOK_AVAILABLE",
-    pickupDeadline: "2026-08-24 17:00",
-    pickupLocation: "Central Library Desk - Counter #2",
+    title: "Reservation Available for Pickup! 📚",
+    message: "Your hold for 'Deep Learning' (BK-101) is ready at Central Library Desk Counter #2.",
     timestamp: "10 mins ago",
-    isRead: false
+    isRead: false,
+    pickupLocation: "Central Library Desk - Counter #2"
   },
   {
     id: "NOTIF-02",
-    title: "Queue Position Advanced!",
-    message: "You moved from position #3 to #2 for ‘Deep Learning’ by Ian Goodfellow.",
-    bookId: "BK-101",
-    bookTitle: "Deep Learning",
-    type: "QUEUE_UPDATE",
+    title: "Loan Renewal Reminder ⏰",
+    message: "'Designing Data-Intensive Applications' is due in 2 days. Click to renew for 14 days.",
     timestamp: "2 hours ago",
-    isRead: false
+    isRead: false,
+    pickupLocation: null
   },
   {
     id: "NOTIF-03",
-    title: "Loan Due Date Reminder",
-    message: "‘Introduction to Algorithms’ is due in 3 days (Aug 25, 2026). You can renew online.",
-    bookId: "BK-104",
-    bookTitle: "Introduction to Algorithms (CLRS)",
-    type: "DUE_REMINDER",
+    title: "Queue Position Advanced! 🚀",
+    message: "You moved up to Position #1 in the queue for 'Artificial Intelligence: A Modern Approach'.",
     timestamp: "1 day ago",
-    isRead: true
-  },
-  {
-    id: "NOTIF-04",
-    title: "Reservation Confirmed",
-    message: "Your queue reservation for ‘Quantum Mechanics’ has been logged successfully.",
-    bookId: "BK-112",
-    bookTitle: "Quantum Mechanics",
-    type: "RESERVATION_CONFIRMED",
-    timestamp: "2 days ago",
-    isRead: true
+    isRead: true,
+    pickupLocation: null
   }
 ];
 
-export const INITIAL_STUDENT_LOANS = [
+export const INITIAL_FLOOR_MAPS = [
   {
-    id: "LOAN-8801",
-    bookId: "BK-104",
-    bookTitle: "Introduction to Algorithms (CLRS)",
-    author: "Cormen, Leiserson, Rivest, Stein",
-    coverUrl: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=600",
-    shelf: "CS-02",
-    borrowedDate: "2026-08-11",
-    dueDate: "2026-08-25",
-    daysLeft: 3,
-    status: "Active"
-  },
-  {
-    id: "LOAN-8802",
-    bookId: "BK-108",
-    bookTitle: "Clean Code",
-    author: "Robert C. Martin",
-    coverUrl: "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=600",
-    shelf: "CS-11",
-    borrowedDate: "2026-08-05",
-    dueDate: "2026-08-28",
-    daysLeft: 6,
-    status: "Active"
-  }
-];
-
-export const INITIAL_WISHLIST = ["BK-105", "BK-110", "BK-113"];
-
-export const LIBRARY_FLOORS_MAP = {
-  "Floor 1": {
+    floor: 1,
     name: "Floor 1 - Physical Sciences, Mathematics & General Library Desk",
-    sections: ["Mathematical Sciences Hall", "Physical Sciences & Astronomy Wing", "Central Library Counter"],
-    aisles: [
-      { code: "M-01 to M-10", label: "Mathematics & Statistics", shelfCount: 10 },
-      { code: "PHY-01 to PHY-12", label: "Physics & Mechanics", shelfCount: 12 },
-      { code: "DESK-1", label: "Main Circulation & Pickup Counter", shelfCount: 1 }
+    sections: ["Mathematical Sciences Hall", "Physical Sciences Wing", "Central Library Counter"],
+    shelves: [
+      { code: "M-09", subject: "Linear Algebra & Vector Calculus", status: "Active" },
+      { code: "M-12", subject: "Probability & Stochastic Processes", status: "Active" },
+      { code: "PHY-04", subject: "University Physics & Quantum Mechanics", status: "Active" },
+      { code: "PHY-08", subject: "Thermodynamics & Electromagnetism", status: "Active" }
     ]
   },
-  "Floor 2": {
-    name: "Floor 2 - Computer Science, Artificial Intelligence & Data Lab",
-    sections: ["AI & Data Systems Wing", "Systems & Architecture Aisle", "Software Design & Patterns Aisle"],
-    aisles: [
-      { code: "C-01 to C-20", label: "AI, Machine Learning & Robotics", shelfCount: 20 },
-      { code: "CS-01 to CS-25", label: "Computer Science & Software", shelfCount: 25 },
-      { code: "DS-01 to DS-15", label: "Data Science & Big Data", shelfCount: 15 }
+  {
+    floor: 2,
+    name: "Floor 2 - Computer Science, AI & Data Systems Center",
+    sections: ["AI & Data Systems Wing", "Systems & Architecture Aisle", "Algorithms Wing"],
+    shelves: [
+      { code: "C-14", subject: "Deep Learning & Neural Networks", status: "Target" },
+      { code: "CS-08", subject: "Distributed Systems & Data Architectures", status: "Active" },
+      { code: "C-12", subject: "Core AI & Search Algorithms", status: "Active" },
+      { code: "CS-02", subject: "Algorithms & Complexity Theory (CLRS)", status: "Active" },
+      { code: "DS-05", subject: "Machine Learning & TensorFlow", status: "Active" },
+      { code: "CS-11", subject: "Clean Code & Agile Design", status: "Active" }
     ]
   },
-  "Floor 3": {
-    name: "Floor 3 - Humanities, Business & Graduate Study Quiet Hub",
-    sections: ["Business & Innovation Hub", "General Humanities Reading Gallery", "Quiet Study Cabins"],
-    aisles: [
-      { code: "MGMT-01 to MGMT-12", label: "Business & Management", shelfCount: 12 },
-      { code: "LIT-01 to LIT-20", label: "Literature & Philosophy", shelfCount: 20 }
+  {
+    floor: 3,
+    name: "Floor 3 - Management, Economics & Quiet Study Zones",
+    sections: ["Management & Economics Hall", "Research Reading Rooms"],
+    shelves: [
+      { code: "MGT-04", subject: "Corporate Finance & Valuation", status: "Active" },
+      { code: "MGT-10", subject: "Strategic Operations & Supply Chain", status: "Active" }
     ]
   }
-};
+];
