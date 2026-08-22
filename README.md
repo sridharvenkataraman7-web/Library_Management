@@ -71,34 +71,35 @@ Check Availability
 
 ## 4. System Architecture
 
-### 👤 User Layer
+```mermaid
+flowchart TD
+    A([👤 Student / Librarian]) --> B[🌐 Web Browser]
+    B --> C[🎨 React.js Frontend]
 
-Students and Librarians access the system through a web browser.
+    C -->|HTTP Request| D[⚙️ Node.js + Express.js Backend]
+    D -->|REST API| C
 
-### 🎨 Frontend
+    D --> E[(🗄️ MySQL / MongoDB Database)]
 
-**React.js** – Handles the user interface, routing, and real-time interactions.
+    E --> F[👥 Users]
+    E --> G[📚 Books]
+    E --> H[📌 Reservations]
+    E --> I[📋 Borrow Records]
+    E --> J[🔔 Notifications]
+    E --> K[🔍 Search History]
 
-### ⚙️ Backend
-
-**Node.js + Express.js** – Processes all business logic and handles API requests.
-
-### 🔗 API Layer
-
-**REST API** – Connects the frontend and backend using standard HTTP methods (GET, POST, PUT, DELETE).
-
-### 🗄️ Database Layer
-
-**MySQL / MongoDB** – Stores and manages all application data:
-
-| Collection / Table | Purpose |
-|---|---|
-| **Users** | Student and librarian accounts |
-| **Books** | Book catalogue with rack & shelf info |
-| **Reservations** | Active reservation queue |
-| **Borrow Records** | History of borrowed books |
-| **Notifications** | Alerts sent to students |
-| **Search History** | Student search logs for recommendations |
+    style A fill:#6c63ff,color:#fff,stroke:#5a52d5
+    style B fill:#1a1a2e,color:#fff,stroke:#6c63ff
+    style C fill:#0f3460,color:#fff,stroke:#6c63ff
+    style D fill:#16213e,color:#fff,stroke:#6c63ff
+    style E fill:#0f3460,color:#fff,stroke:#43e97b
+    style F fill:#1a1a2e,color:#a0a0c0,stroke:#43e97b
+    style G fill:#1a1a2e,color:#a0a0c0,stroke:#43e97b
+    style H fill:#1a1a2e,color:#a0a0c0,stroke:#43e97b
+    style I fill:#1a1a2e,color:#a0a0c0,stroke:#43e97b
+    style J fill:#1a1a2e,color:#a0a0c0,stroke:#43e97b
+    style K fill:#1a1a2e,color:#a0a0c0,stroke:#43e97b
+```
 
 ---
 
