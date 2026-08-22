@@ -1,257 +1,193 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import {
-  Shield,
+  ShieldAlert,
   BookOpen,
+  Layers,
+  ListTodo,
   CheckCircle,
   Clock,
+  QrCode,
+  Scan,
+  TrendingUp,
   AlertTriangle,
-  Users,
-  Plus,
-  Search,
-  ListTodo,
-  Layers,
-  Sparkles,
   ArrowRight,
   UserCheck,
-  RotateCcw
+  Plus
 } from "lucide-react";
 
 export const LibrarianDashboard = () => {
-  const {
-    librarianProfile,
-    books,
-    studentLoans,
-    setIsAddBookOpen,
-    setActiveTab,
-    updateReservationStatus
-  } = useApp();
+  const { books, studentLoans, setActiveTab, setEditingBook } = useApp();
 
-  // Issue/Return simulator input state
-  const [scanStudentId, setScanStudentId] = useState("STU-2024-8842");
-  const [scanBookId, setScanBookId] = useState(books[0]?.id || "BK-101");
-  const [scanMessage, setScanMessage] = useState("");
+  const [scanInput, setScanInput] = useState("");
+  const [scanResult, setScanResult] = useState(null);
 
   // Stats computation
-  const totalBooks = books.reduce((acc, b) => acc + b.totalCopies, 0);
-  const availableBooks = books.reduce((acc, b) => acc + b.availableCopies, 0);
-  const borrowedBooks = totalBooks - availableBooks;
-  const activeQueuesCount = books.reduce((acc, b) => acc + (b.queue ? b.queue.length : 0), 0);
-  const overdueCount = 0;
+  const totalCopies = books.reduce((acc, b) => acc + b.totalCopies, 0);
+  const availableCopies = books.reduce((acc, b) => acc + b.availableCopies, 0);
+  const totalHoldsCount = books.reduce((acc, b) => acc + (b.queue ? b.queue.length : 0), 0);
+  const activeLoansCount = studentLoans.length;
 
-  // Flattened reservations list for desk
-  const reservationRows = [];
-  books.forEach((b) => {
-    (b.queue || []).forEach((q, idx) => {
-      reservationRows.push({
-        bookId: b.id,
-        bookTitle: b.title,
-        shelf: b.shelf,
-        studentId: q.studentId,
-        studentName: q.name,
-        queuePos: idx + 1,
-        reservedDate: q.reservedDate,
-        status: idx === 0 ? "Next in Line (Ready for Pickup)" : "Waiting in Queue"
+  const handleSimulateScan = (e) => {
+    e.preventDefault();
+    if (!scanInput.trim()) return;
+
+    // Search by ISBN, Barcode, or Book Title
+    const match = books.find(
+      (b) =>
+        b.isbn.includes(scanInput) ||
+        b.id.toLowerCase() === scanInput.toLowerCase() ||
+        b.title.toLowerCase().includes(scanInput.toLowerCase())
+    );
+
+    if (match) {
+      setScanResult({
+        success: true,
+        book: match,
+        message: `Found item: "${match.title}" (Shelf: ${match.shelf})`
       });
-    });
-  });
-
-  const handleSimulateIssue = () => {
-    if (!scanStudentId || !scanBookId) return;
-    setScanMessage(`✅ Book [${scanBookId}] successfully issued to Student [${scanStudentId}].`);
-    setTimeout(() => setScanMessage(""), 4000);
+    } else {
+      setScanResult({
+        success: false,
+        message: `No item found matching barcode/ISBN: "${scanInput}"`
+      });
+    }
   };
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      {/* Welcome Banner Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-950 via-slate-900 to-indigo-950 border border-violet-500/20 p-6 lg:p-8 shadow-2xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30 text-xs font-semibold">
-              <Shield className="w-3.5 h-3.5 text-violet-400" />
-              <span>Campus Digital Librarian Portal</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-              Welcome, <span className="text-violet-400">{librarianProfile.name}</span>
-            </h1>
-            <p className="text-xs text-slate-300">
-              Manage inventory, process student book reservation queues, update shelf locations, and oversee circulation desk requests.
-            </p>
+      {/* Header Banner */}
+      <div className="p-6 lg:p-8 rounded-3xl bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl shadow-orange-500/20">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white border border-white/30 text-xs font-semibold">
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Campus Digital Librarian Portal</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsAddBookOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold shadow-lg shadow-violet-600/30 transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add New Book</span>
-            </button>
-            <button
-              onClick={() => setActiveTab("librarian-reservations")}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition-all"
-            >
-              <ListTodo className="w-4 h-4 text-violet-400" />
-              <span>Reservation Desk</span>
-            </button>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Librarian Command Desk</h1>
+          <p className="text-xs sm:text-sm text-orange-50 max-w-xl">
+            Real-time circulation monitoring, queue hold processing, inventory stock adjustments & barcode scanner simulator.
+          </p>
         </div>
+
+        <button
+          onClick={() => {
+            setEditingBook({});
+          }}
+          className="px-4 py-3 rounded-2xl bg-white text-orange-600 hover:bg-orange-50 text-xs font-extrabold shadow-lg transition-all flex items-center gap-2 shrink-0"
+        >
+          <Plus className="w-4 h-4 text-orange-600" />
+          <span>Add New Book Copy</span>
+        </button>
       </div>
 
       {/* Librarian Stats Overview Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="p-4 rounded-2xl glass-card border-slate-800">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-            Total Copies
-          </span>
-          <p className="text-2xl font-extrabold text-white mt-1">{totalBooks}</p>
-          <span className="text-[10px] text-slate-400">{books.length} unique titles</span>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Inventory Stock</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">{totalCopies}</p>
+          <p className="text-[11px] text-slate-500 mt-1">Across all departments</p>
         </div>
 
-        <div className="p-4 rounded-2xl glass-card border-emerald-500/20">
-          <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">
-            Available Copies
-          </span>
-          <p className="text-2xl font-extrabold text-emerald-300 mt-1">{availableBooks}</p>
-          <span className="text-[10px] text-emerald-400">Ready on shelves</span>
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ready on Shelves</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">{availableCopies}</p>
+          <p className="text-[11px] text-emerald-700 mt-1 font-semibold">Available for checkout</p>
         </div>
 
-        <div className="p-4 rounded-2xl glass-card border-indigo-500/20">
-          <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">
-            Borrowed Copies
-          </span>
-          <p className="text-2xl font-extrabold text-indigo-300 mt-1">{borrowedBooks}</p>
-          <span className="text-[10px] text-indigo-400">Issued to students</span>
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Student Loans</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-orange-600 mt-1">{activeLoansCount}</p>
+          <p className="text-[11px] text-orange-700 mt-1 font-semibold">Currently issued</p>
         </div>
 
-        <div className="p-4 rounded-2xl glass-card border-amber-500/20">
-          <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">
-            Active Queue Holds
-          </span>
-          <p className="text-2xl font-extrabold text-amber-300 mt-1">{activeQueuesCount}</p>
-          <span className="text-[10px] text-amber-400">Pending collections</span>
-        </div>
-
-        <div className="p-4 rounded-2xl glass-card border-rose-500/20">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-            Overdue Fines
-          </span>
-          <p className="text-2xl font-extrabold text-white mt-1">{overdueCount}</p>
-          <span className="text-[10px] text-slate-400">0 overdue books</span>
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Queue Holds</span>
+          <p className="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">{totalHoldsCount}</p>
+          <p className="text-[11px] text-amber-700 mt-1 font-semibold">Students waiting in line</p>
         </div>
       </div>
 
-      {/* Main Grid: Circulation Desk Scanner Simulator + Recent Queue Holds */}
+      {/* Scanner Simulator & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Circulation Desk Scanner */}
-        <div className="p-6 rounded-3xl glass-card border-violet-500/30 space-y-4">
-          <div className="flex items-center gap-2 text-violet-300">
-            <UserCheck className="w-5 h-5 text-violet-400" />
-            <h3 className="text-base font-bold text-white">Circulation Issue/Return Desk</h3>
+        {/* Circulation Barcode Scanner Simulator */}
+        <div className="lg:col-span-2 p-6 rounded-3xl bg-white border border-slate-200 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <Scan className="w-5 h-5 text-orange-600" />
+              <span>Circulation Barcode Scanner Simulator</span>
+            </h3>
+            <span className="text-xs font-mono font-bold text-orange-600">Desk Kiosk Mode</span>
           </div>
-          <p className="text-xs text-slate-400">Simulate barcode scanner input to issue or receive books.</p>
 
-          <div className="space-y-3 pt-2">
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-                Student ID / Campus Card
-              </label>
+          <form onSubmit={handleSimulateScan} className="space-y-3">
+            <div className="relative">
+              <QrCode className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                value={scanStudentId}
-                onChange={(e) => setScanStudentId(e.target.value)}
-                placeholder="STU-2024-8842"
-                className="w-full py-2 px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-white focus:outline-none focus:border-violet-500"
+                placeholder="Scan or enter Student ID, Book Barcode or ISBN (e.g. 978-0134685991)..."
+                value={scanInput}
+                onChange={(e) => setScanInput(e.target.value)}
+                className="w-full pl-12 pr-28 py-3.5 rounded-2xl glass-input text-slate-900 text-xs sm:text-sm"
               />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-400 mb-1">
-                Select Book to Process
-              </label>
-              <select
-                value={scanBookId}
-                onChange={(e) => setScanBookId(e.target.value)}
-                className="w-full py-2 px-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-violet-500"
+              <button
+                type="submit"
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all shadow-md shadow-orange-500/20"
               >
-                {books.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    [{b.id}] {b.title} (Shelf {b.shelf})
-                  </option>
-                ))}
-              </select>
+                Simulate Scan
+              </button>
             </div>
+          </form>
 
-            <button
-              onClick={handleSimulateIssue}
-              className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold shadow-lg shadow-violet-600/30 transition-all flex items-center justify-center gap-2"
+          {/* Scan Output Box */}
+          {scanResult && (
+            <div
+              className={`p-4 rounded-2xl border text-xs space-y-2 ${
+                scanResult.success
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                  : "bg-rose-50 border-rose-200 text-rose-800"
+              }`}
             >
-              <CheckCircle className="w-4 h-4" />
-              <span>Issue Book to Student</span>
-            </button>
-
-            {scanMessage && (
-              <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-xs text-emerald-300 font-mono">
-                {scanMessage}
-              </div>
-            )}
-          </div>
+              <p className="font-bold flex items-center gap-2">
+                {scanResult.success ? <CheckCircle className="w-4 h-4 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 text-rose-600" />}
+                <span>{scanResult.message}</span>
+              </p>
+              {scanResult.book && (
+                <div className="flex items-center justify-between text-[11px] pt-2 border-t border-emerald-200/60 font-mono">
+                  <span>Author: {scanResult.book.author}</span>
+                  <span>Stock: {scanResult.book.availableCopies} available</span>
+                  <span>Status: {scanResult.book.status}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Active Reservation Holds Table Preview */}
-        <div className="lg:col-span-2 p-6 rounded-3xl glass-card border-slate-800 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <ListTodo className="w-5 h-5 text-amber-400" />
-              <span>Active Reservation Holds ({reservationRows.length})</span>
-            </h3>
+        {/* Quick Admin Actions */}
+        <div className="p-6 rounded-3xl bg-white border border-slate-200 space-y-4 shadow-sm">
+          <h3 className="text-base font-bold text-slate-900">Admin Actions</h3>
+
+          <div className="space-y-2">
+            <button
+              onClick={() => setActiveTab("librarian-catalogue")}
+              className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-orange-50 border border-slate-200 text-left transition-all group flex items-center justify-between"
+            >
+              <div>
+                <p className="text-xs font-bold text-slate-900 group-hover:text-orange-600">Catalogue Manager</p>
+                <p className="text-[11px] text-slate-500">Edit titles, shelf codes & copy counts</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-600 transition-transform group-hover:translate-x-1" />
+            </button>
+
             <button
               onClick={() => setActiveTab("librarian-reservations")}
-              className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold"
+              className="w-full p-3 rounded-2xl bg-slate-50 hover:bg-orange-50 border border-slate-200 text-left transition-all group flex items-center justify-between"
             >
-              Open Full Manager ➔
+              <div>
+                <p className="text-xs font-bold text-slate-900 group-hover:text-orange-600">Master Reservations Desk</p>
+                <p className="text-[11px] text-slate-500">Process student hold queues & mark pickups</p>
+              </div>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-600 transition-transform group-hover:translate-x-1" />
             </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="p-3">Student</th>
-                  <th className="p-3">Book Title</th>
-                  <th className="p-3">Shelf</th>
-                  <th className="p-3">Queue Pos</th>
-                  <th className="p-3">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {reservationRows.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-6 text-center text-slate-500">
-                      No active queue holds right now.
-                    </td>
-                  </tr>
-                ) : (
-                  reservationRows.slice(0, 5).map((row, idx) => (
-                    <tr key={idx} className="hover:bg-slate-800/40">
-                      <td className="p-3 font-mono font-semibold text-white">{row.studentId}</td>
-                      <td className="p-3 font-medium text-slate-200">{row.bookTitle}</td>
-                      <td className="p-3 font-mono text-indigo-400">{row.shelf}</td>
-                      <td className="p-3 font-bold text-amber-400">#{row.queuePos}</td>
-                      <td className="p-3">
-                        <button
-                          onClick={() => updateReservationStatus(row.bookId, row.studentId, "MARK_AVAILABLE")}
-                          className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold hover:bg-emerald-500/30 transition-colors"
-                        >
-                          Mark Available
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
           </div>
         </div>
       </div>

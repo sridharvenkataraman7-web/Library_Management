@@ -3,17 +3,15 @@ import { useApp } from "../context/AppContext";
 import {
   Search,
   Filter,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  MapPin,
-  BookmarkPlus,
-  BookmarkCheck,
-  Star,
   BookOpen,
+  MapPin,
+  Clock,
+  CheckCircle,
   Radio,
-  Eye,
-  X
+  Bookmark,
+  Sparkles,
+  SlidersHorizontal,
+  Star
 } from "lucide-react";
 
 export const SmartBookSearch = () => {
@@ -23,7 +21,6 @@ export const SmartBookSearch = () => {
     setMapTargetBook,
     setRadarTargetBook,
     reserveBook,
-    studentProfile,
     wishlist,
     toggleWishlist,
     setActiveTab,
@@ -31,307 +28,257 @@ export const SmartBookSearch = () => {
     setGlobalSearch
   } = useApp();
 
+  // Filters state
   const [selectedDept, setSelectedDept] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [sortBy, setSortBy] = useState("rating"); // "rating", "year", "title"
+  const [sortBy, setSortBy] = useState("title"); // "title" | "rating" | "availability"
 
-  // Filter options lists
-  const departments = ["All", "Artificial Intelligence", "Computer Science", "Data Science", "Mathematics", "Physics", "Management", "Literature"];
-  const statuses = ["All", "Available", "Reserved", "Checked Out"];
-  const categories = ["All", "Machine Learning", "Distributed Systems", "Core AI", "Algorithms & Data Structures", "Applied ML", "Applied Mathematics", "Classical & Quantum Physics", "Software Design", "Data Wrangling", "Entrepreneurship", "History & Anthropology"];
+  const departments = ["All", "Computer Science & AI", "Data Science", "Mathematics", "Physics", "Management", "Electronics"];
 
-  // Filter logic
-  const filteredBooks = books.filter((book) => {
-    const matchesSearch =
-      !globalSearch ||
-      book.title.toLowerCase().includes(globalSearch.toLowerCase()) ||
-      book.author.toLowerCase().includes(globalSearch.toLowerCase()) ||
-      book.isbn.includes(globalSearch) ||
-      book.subject.toLowerCase().includes(globalSearch.toLowerCase()) ||
-      book.shelf.toLowerCase().includes(globalSearch.toLowerCase());
+  // Filtered books logic
+  let filtered = books.filter((book) => {
+    const query = globalSearch.toLowerCase().trim();
+    const matchSearch =
+      !query ||
+      book.title.toLowerCase().includes(query) ||
+      book.author.toLowerCase().includes(query) ||
+      book.subject.toLowerCase().includes(query) ||
+      book.isbn.includes(query) ||
+      book.shelf.toLowerCase().includes(query);
 
-    const matchesDept = selectedDept === "All" || book.department === selectedDept;
-    const matchesStatus = selectedStatus === "All" || book.status === selectedStatus;
-    const matchesCat = selectedCategory === "All" || book.category === selectedCategory;
+    const matchDept = selectedDept === "All" || book.department === selectedDept;
+    const matchStatus = selectedStatus === "All" || book.status === selectedStatus;
 
-    return matchesSearch && matchesDept && matchesStatus && matchesCat;
+    return matchSearch && matchDept && matchStatus;
   });
 
-  // Sort logic
-  const sortedBooks = [...filteredBooks].sort((a, b) => {
+  // Sorting logic
+  filtered.sort((a, b) => {
     if (sortBy === "rating") return b.rating - a.rating;
-    if (sortBy === "year") return b.year - a.year;
-    if (sortBy === "title") return a.title.localeCompare(b.title);
-    return 0;
+    if (sortBy === "availability") return b.availableCopies - a.availableCopies;
+    return a.title.localeCompare(b.title);
   });
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* Search Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Header Banner */}
+      <div className="p-6 rounded-3xl bg-white border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <Search className="w-6 h-6 text-indigo-400" />
-            <span>Smart Book Search & Catalogue</span>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+            <Search className="w-6 h-6 text-orange-600" />
+            <span>Smart Book Catalogue</span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Browse through {books.length} digital catalogue titles. Check live shelf locations and reserve instantly.
+          <p className="text-xs text-slate-500 mt-1">
+            Search 10,000+ campus textbooks, check live shelf stock, or place queue reservations instantly.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 font-mono">Showing {sortedBooks.length} books</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setActiveTab("book-radar")}
+            className="px-3.5 py-2 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200 text-xs font-bold transition-all flex items-center gap-1.5"
+          >
+            <Radio className="w-4 h-4 text-orange-500 animate-pulse" />
+            <span>Scan Book Radar</span>
+          </button>
         </div>
       </div>
 
-      {/* Main Search Input & Filters Box */}
-      <div className="p-5 rounded-3xl glass-panel border-slate-800 space-y-4">
-        {/* Search Bar */}
+      {/* Filter Toolbar Card */}
+      <div className="p-5 rounded-3xl bg-white border border-slate-200 space-y-4 shadow-sm">
+        {/* Search Bar Input */}
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search by Title, Author, ISBN, Subject, Department or Shelf Number (e.g. C-14)..."
+            placeholder="Search by Title, Author, ISBN, Subject or Shelf Code..."
             value={globalSearch}
             onChange={(e) => setGlobalSearch(e.target.value)}
-            className="w-full pl-12 pr-10 py-3 rounded-2xl glass-input text-sm text-white placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500/50"
+            className="w-full pl-11 pr-4 py-3 rounded-2xl glass-input text-slate-900 text-xs sm:text-sm placeholder:text-slate-400"
           />
-          {globalSearch && (
-            <button
-              onClick={() => setGlobalSearch("")}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
         </div>
 
-        {/* Multi-Filter Dropdowns Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-slate-800/80">
-          {/* Dept Filter */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">Department</label>
-            <select
-              value={selectedDept}
-              onChange={(e) => setSelectedDept(e.target.value)}
-              className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-            >
-              {departments.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+        {/* Filter Badges & Selects */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          {/* Department Badges */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Dept:</span>
+            {departments.map((dept) => (
+              <button
+                key={dept}
+                onClick={() => setSelectedDept(dept)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                  selectedDept === dept
+                    ? "bg-orange-600 text-white shadow-md shadow-orange-500/25"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
+                }`}
+              >
+                {dept}
+              </button>
+            ))}
           </div>
 
-          {/* Status Filter */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">Availability Status</label>
+          {/* Status & Sort Selectors */}
+          <div className="flex items-center gap-3">
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+              className="py-1.5 px-3 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-semibold focus:outline-none focus:border-orange-500"
             >
-              {statuses.map((s) => (
-                <option key={s} value={s}>
-                  {s === "Available" ? "🟢 Available" : s === "Reserved" ? "🟠 Reserved" : s === "Checked Out" ? "🔴 Checked Out" : "All Statuses"}
-                </option>
-              ))}
+              <option value="All">All Availability</option>
+              <option value="Available">🟢 Available Now</option>
+              <option value="Reserved">🟠 Reserved Queue</option>
+              <option value="Checked Out">🔴 Checked Out</option>
             </select>
-          </div>
 
-          {/* Category Filter */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">Category</label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-            >
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Sort By */}
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 mb-1">Sort By</label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full py-2 px-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+              className="py-1.5 px-3 rounded-xl bg-white border border-slate-300 text-slate-800 text-xs font-semibold focus:outline-none focus:border-orange-500"
             >
-              <option value="rating">Highest Rated</option>
-              <option value="year">Newest Publication</option>
-              <option value="title">Alphabetical (A-Z)</option>
+              <option value="title">Sort: Title A-Z</option>
+              <option value="rating">Sort: Top Rated ⭐</option>
+              <option value="availability">Sort: Highest Stock 📚</option>
             </select>
           </div>
         </div>
       </div>
 
-      {/* Book Cards Grid */}
-      {sortedBooks.length === 0 ? (
-        <div className="p-12 text-center rounded-3xl glass-card border-slate-800 space-y-3">
-          <BookOpen className="w-12 h-12 text-slate-600 mx-auto" />
-          <h3 className="text-base font-bold text-white">No matching books found</h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            Try adjusting your search criteria or resetting filters to browse all available titles.
+      {/* Results Header */}
+      <div className="flex items-center justify-between px-1">
+        <p className="text-xs font-bold text-slate-500">
+          Showing <span className="text-slate-900">{filtered.length}</span> catalogue books
+        </p>
+      </div>
+
+      {/* Book Grid */}
+      {filtered.length === 0 ? (
+        <div className="p-12 text-center rounded-3xl bg-white border border-slate-200 space-y-3">
+          <BookOpen className="w-12 h-12 text-slate-300 mx-auto" />
+          <h3 className="text-base font-bold text-slate-800">No books found matching criteria</h3>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            Try adjusting your search query or reset department filters to see available books.
           </p>
-          <button
-            onClick={() => {
-              setGlobalSearch("");
-              setSelectedDept("All");
-              setSelectedStatus("All");
-              setSelectedCategory("All");
-            }}
-            className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold"
-          >
-            Reset All Filters
-          </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {sortedBooks.map((book) => {
-            const inWishlist = wishlist.includes(book.id);
-            const isReservedByMe = (book.queue || []).some((q) => q.studentId === studentProfile.id);
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {filtered.map((book) => {
+            const isWishlisted = wishlist.includes(book.id);
 
             return (
               <div
                 key={book.id}
-                className="rounded-3xl glass-card border-slate-800 p-4 flex flex-col justify-between space-y-4 hover:border-indigo-500/40 transition-all group"
+                className="p-4 rounded-2xl glass-card border-slate-200 flex flex-col justify-between space-y-4 hover:border-orange-500/50 transition-all group shadow-sm"
               >
                 <div className="space-y-3">
-                  {/* Top Cover & Badge Row */}
-                  <div className="flex gap-4">
-                    <div className="relative shrink-0 w-24 h-32 rounded-xl overflow-hidden bg-slate-900 shadow-md">
-                      <img
-                        src={book.coverUrl}
-                        alt={book.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleWishlist(book.id);
-                        }}
-                        className={`absolute top-1.5 left-1.5 p-1.5 rounded-lg text-xs backdrop-blur-md transition-all ${
-                          inWishlist
-                            ? "bg-rose-500/80 text-white"
-                            : "bg-slate-950/60 text-slate-300 hover:text-white"
-                        }`}
-                        title="Add to wishlist"
-                      >
-                        {inWishlist ? (
-                          <BookmarkCheck className="w-3.5 h-3.5" />
-                        ) : (
-                          <BookmarkPlus className="w-3.5 h-3.5" />
-                        )}
-                      </button>
-                    </div>
+                  {/* Book Cover Image & Badges */}
+                  <div
+                    onClick={() => setSelectedBook(book)}
+                    className="relative overflow-hidden rounded-xl aspect-[3/4] bg-slate-100 cursor-pointer"
+                  >
+                    <img
+                      src={book.coverUrl}
+                      alt={book.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
 
-                    <div className="flex-1 min-w-0 space-y-1.5">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider truncate">
-                          {book.department}
-                        </span>
-                        <div className="flex items-center gap-1 text-[11px] text-amber-400 font-bold">
-                          <Star className="w-3 h-3 fill-amber-400" />
-                          <span>{book.rating}</span>
-                        </div>
-                      </div>
+                    {/* Status Badge */}
+                    <span
+                      className={`absolute top-2 right-2 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md ${
+                        book.status === "Available"
+                          ? "bg-emerald-600 text-white"
+                          : book.status === "Reserved"
+                          ? "bg-amber-600 text-white"
+                          : "bg-rose-600 text-white"
+                      }`}
+                    >
+                      {book.status}
+                    </span>
 
-                      <h3
-                        onClick={() => setSelectedBook(book)}
-                        className="text-sm font-bold text-white line-clamp-2 cursor-pointer hover:text-indigo-300 transition-colors leading-snug"
-                      >
-                        {book.title}
-                      </h3>
-                      <p className="text-xs text-slate-400 truncate">{book.author}</p>
-                      <p className="text-[10px] text-slate-500">ISBN: {book.isbn}</p>
-
-                      {/* Status Badge */}
-                      <div className="pt-1">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                            book.status === "Available"
-                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-                              : book.status === "Reserved"
-                              ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                              : "bg-rose-500/20 text-rose-300 border-rose-500/30"
-                          }`}
-                        >
-                          {book.status === "Available" ? (
-                            <>
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                              🟢 Available ({book.availableCopies}/{book.totalCopies})
-                            </>
-                          ) : book.status === "Reserved" ? (
-                            <>
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                              🟠 Reserved (Queue: {book.queue ? book.queue.length : 0})
-                            </>
-                          ) : (
-                            <>
-                              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                              🔴 Checked Out
-                            </>
-                          )}
-                        </span>
-                      </div>
-                    </div>
+                    {/* Wishlist Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleWishlist(book.id);
+                      }}
+                      className={`absolute top-2 left-2 p-1.5 rounded-xl transition-all ${
+                        isWishlisted
+                          ? "bg-orange-600 text-white shadow-md"
+                          : "bg-white/80 backdrop-blur-md text-slate-700 hover:bg-white"
+                      }`}
+                      title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                    >
+                      <Bookmark className="w-4 h-4 fill-current" />
+                    </button>
                   </div>
 
-                  {/* Location Info Banner */}
-                  <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] flex items-center justify-between text-slate-300">
-                    <span className="flex items-center gap-1 text-slate-400">
-                      <span>Location:</span>
-                      <strong className="text-white font-mono">{book.floor}</strong>
+                  {/* Title & Author */}
+                  <div>
+                    <h3
+                      onClick={() => setSelectedBook(book)}
+                      className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 cursor-pointer group-hover:text-orange-600 transition-colors"
+                    >
+                      {book.title}
+                    </h3>
+                    <p className="text-[11px] text-slate-500 truncate mt-0.5">{book.author}</p>
+                  </div>
+
+                  {/* Metadata Chips */}
+                  <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                      {book.department}
                     </span>
-                    <span className="flex items-center gap-1 font-mono text-indigo-400 font-bold">
+                    <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold border border-amber-200">
+                      ⭐ {book.rating}
+                    </span>
+                  </div>
+
+                  {/* Stock & Shelf Info */}
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-[11px] font-mono">
+                    <span className="text-slate-600">
+                      Copies: <strong className="text-slate-900">{book.availableCopies}/{book.totalCopies}</strong>
+                    </span>
+                    <button
+                      onClick={() => {
+                        setMapTargetBook(book);
+                        setActiveTab("shelf-locator");
+                      }}
+                      className="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1"
+                    >
                       <MapPin className="w-3 h-3" />
-                      {book.shelf} ({book.shelfBay})
-                    </span>
+                      <span>{book.shelf}</span>
+                    </button>
                   </div>
                 </div>
 
                 {/* Card Action Buttons */}
-                <div className="pt-2 border-t border-slate-800/80 flex items-center gap-2">
+                <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
                   <button
-                    onClick={() => {
-                      setMapTargetBook(book);
-                      setActiveTab("shelf-locator");
-                    }}
-                    className="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                    onClick={() => setSelectedBook(book)}
+                    className="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all"
                   >
-                    <MapPin className="w-3.5 h-3.5 text-indigo-400" />
-                    <span>Find on Map</span>
+                    View Details
                   </button>
 
-                  {book.status === "Checked Out" || book.status === "Reserved" ? (
+                  {book.status === "Available" ? (
+                    <button
+                      onClick={() => reserveBook(book.id)}
+                      className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20 transition-all"
+                    >
+                      Reserve Book
+                    </button>
+                  ) : (
                     <button
                       onClick={() => {
                         setRadarTargetBook(book);
                         setActiveTab("book-radar");
                       }}
-                      className="py-2 px-2.5 rounded-xl bg-violet-600/20 text-violet-300 hover:bg-violet-600/30 border border-violet-500/30 text-xs font-semibold flex items-center gap-1"
-                      title="Radar Alternatives"
+                      className="flex-1 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-md shadow-orange-500/20 transition-all flex items-center justify-center gap-1"
                     >
-                      <Radio className="w-3.5 h-3.5 text-violet-400 animate-pulse" />
-                      <span>Radar</span>
+                      <Radio className="w-3 h-3 animate-pulse" />
+                      <span>Book Radar</span>
                     </button>
-                  ) : null}
-
-                  <button
-                    onClick={() => setSelectedBook(book)}
-                    className="py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1 transition-all"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>Details</span>
-                  </button>
+                  )}
                 </div>
               </div>
             );

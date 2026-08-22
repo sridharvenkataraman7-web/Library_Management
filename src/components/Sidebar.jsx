@@ -17,7 +17,6 @@ import {
   BookmarkPlus
 } from "lucide-react";
 
-
 export const Sidebar = () => {
   const {
     persona,
@@ -42,7 +41,6 @@ export const Sidebar = () => {
       icon: Bookmark,
       badge: studentLoans.length + activeReservationsCount
     },
-
     { id: "book-radar", label: "Book Radar", icon: Radio, highlight: true },
     { id: "shelf-locator", label: "Shelf Locator", icon: MapPin },
     { id: "notifications", label: "Notifications", icon: Bell, badge: unreadNotifCount }
@@ -63,19 +61,19 @@ export const Sidebar = () => {
   const navItems = persona === "student" ? studentNavItems : librarianNavItems;
 
   return (
-    <aside className="w-64 shrink-0 hidden lg:block py-6 px-4 border-r border-slate-800/60 min-h-[calc(100vh-65px)] bg-slate-950/40">
+    <aside className="w-64 shrink-0 hidden lg:block py-6 px-4 border-r border-slate-200 min-h-[calc(100vh-65px)] bg-slate-50">
       <div className="space-y-6">
         {/* Persona Mode Indicator Card */}
-        <div className="p-3.5 rounded-2xl glass-panel border-indigo-500/20">
-          <div className="flex items-center gap-2 text-xs font-bold text-indigo-300 uppercase tracking-wider">
+        <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-2 text-xs font-bold text-orange-600 uppercase tracking-wider">
             {persona === "student" ? (
-              <BookOpenCheck className="w-4 h-4 text-indigo-400" />
+              <BookOpenCheck className="w-4 h-4 text-orange-600" />
             ) : (
-              <ShieldAlert className="w-4 h-4 text-violet-400" />
+              <ShieldAlert className="w-4 h-4 text-amber-600" />
             )}
             <span>{persona === "student" ? "Student Portal" : "Librarian Command"}</span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
             {persona === "student"
               ? "Access campus library catalogue, live queues & smart shelf locator."
               : "Manage library catalogue, process queues & issue/return books."}
@@ -84,7 +82,7 @@ export const Sidebar = () => {
 
         {/* Navigation Menu Links */}
         <div>
-          <p className="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider px-3 mb-2">
+          <p className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider px-3 mb-2">
             Main Menu
           </p>
           <nav className="space-y-1">
@@ -95,18 +93,18 @@ export const Sidebar = () => {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all group ${
                     isActive
-                      ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-600/30"
+                      ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/25"
                       : item.highlight
-                      ? "text-violet-300 bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20"
-                      : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/60"
+                      ? "text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon
                       className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                        isActive ? "text-white" : item.highlight ? "text-violet-400" : "text-slate-400"
+                        isActive ? "text-white" : item.highlight ? "text-orange-600" : "text-slate-500"
                       }`}
                     />
                     <span>{item.label}</span>
@@ -116,8 +114,8 @@ export const Sidebar = () => {
                     <span
                       className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         isActive
-                          ? "bg-white text-indigo-600"
-                          : "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
+                          ? "bg-white text-orange-600"
+                          : "bg-orange-100 text-orange-700 border border-orange-200"
                       }`}
                     >
                       {item.badge}
@@ -130,26 +128,26 @@ export const Sidebar = () => {
         </div>
 
         {/* Library Hours & Status Card */}
-        <div className="p-4 rounded-2xl glass-card border-slate-800 text-xs">
-          <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="font-semibold text-slate-300">Central Library</span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs shadow-sm">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="font-semibold text-slate-800">Central Library</span>
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
               OPEN 24/7
             </span>
           </div>
-          <div className="space-y-1.5 text-[11px] text-slate-400">
+          <div className="space-y-1.5 text-[11px] text-slate-500">
             <div className="flex justify-between">
               <span>Main Study Desk:</span>
-              <span className="text-white font-mono">Floor 1-3</span>
+              <span className="text-slate-800 font-mono">Floor 1-3</span>
             </div>
             <div className="flex justify-between">
               <span>Digital Kiosk:</span>
-              <span className="text-emerald-400 font-mono">Online</span>
+              <span className="text-emerald-600 font-mono font-bold">Online</span>
             </div>
             <div className="flex justify-between">
               <span>Smart Shelf Map:</span>
-              <span className="text-indigo-400 font-mono">Active</span>
+              <span className="text-orange-600 font-mono font-bold">Active</span>
             </div>
           </div>
         </div>
