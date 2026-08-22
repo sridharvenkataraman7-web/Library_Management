@@ -1,8 +1,8 @@
-# LibraX – Smart Digital Library Reservation System
+# SmartLib – Smart Digital Library Reservation System
 
 > **Tagline**: Find it. Reserve it. Read it.
 
-LibraX is a modern, production-grade digital library command center built for college campuses. It eliminates physical library availability checks by offering real-time inventory discovery, smart 2D shelf navigation mapping, visual queue tracking, and librarian circulation management.
+SmartLib is a modern, production-grade digital library command center built for college campuses. It eliminates physical library availability checks by offering real-time inventory discovery, smart 2D shelf navigation mapping, visual queue tracking, and librarian circulation management.
 
 ## 🚀 Key Features
 

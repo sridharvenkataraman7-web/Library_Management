@@ -112,7 +112,7 @@ export const AuthPages = () => {
             </div>
             <div className="text-left">
               <span className="font-extrabold text-2xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-                Libra<span className="text-indigo-400">X</span>
+                Smart<span className="text-indigo-400">Lib</span>
               </span>
               <p className="text-xs text-slate-400 font-medium">Smart Digital Library Reservation System</p>
             </div>

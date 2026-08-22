@@ -122,7 +122,7 @@ export const AppProvider = ({ children }) => {
 
     return {
       success: true,
-      message: "Account created successfully! Welcome to LibraX."
+      message: "Account created successfully! Welcome to SmartLib."
     };
   };
 
