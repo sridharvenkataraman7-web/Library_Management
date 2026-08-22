@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import {
   BookOpen,
@@ -32,12 +32,60 @@ export const StudentHomeDashboard = () => {
     setGlobalSearch
   } = useApp();
 
-  // Metrics computation
-  const totalBooksCount = books.length;
-  const availableBooksCount = books.filter((b) => b.status === "Available").length;
-  const reservedBooksCount = books.filter((b) => b.status === "Reserved").length;
-  const borrowedBooksCount = books.filter((b) => b.status === "Checked Out").length;
-  const overdueCount = 0; // No overdue fines currently
+  // Metrics computation (base values)
+  const baseAvailableBooksCount = books.filter((b) => b.status === "Available").length;
+  const baseReservedBooksCount = books.filter((b) => b.status === "Reserved").length;
+  
+  // Live stats state
+  const [liveAvailableBooksCount, setLiveAvailableBooksCount] = useState(baseAvailableBooksCount);
+  const [liveReservedBooksCount, setLiveReservedBooksCount] = useState(baseReservedBooksCount);
+  const [liveOverdueCount, setLiveOverdueCount] = useState(0);
+  const [liveStudentLoans, setLiveStudentLoans] = useState(studentLoans);
+
+  // Sync with actual data changes
+  useEffect(() => {
+    setLiveAvailableBooksCount(baseAvailableBooksCount);
+    setLiveReservedBooksCount(baseReservedBooksCount);
+  }, [baseAvailableBooksCount, baseReservedBooksCount]);
+
+  useEffect(() => {
+    setLiveStudentLoans(studentLoans);
+  }, [studentLoans]);
+
+  const liveBorrowedBooksCount = liveStudentLoans.length;
+
+  // Simulate live data changes every 15 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveAvailableBooksCount(prev => Math.max(0, prev + (Math.floor(Math.random() * 5) - 2)));
+      setLiveReservedBooksCount(prev => Math.max(0, prev + (Math.floor(Math.random() * 3) - 1)));
+      setLiveOverdueCount(prev => Math.max(0, prev + (Math.floor(Math.random() * 3) - 1)));
+      
+      setLiveStudentLoans(prev => {
+        const shouldAdd = Math.random() > 0.5;
+        if (shouldAdd && prev.length < 5) {
+          const availableToAdd = books.filter(b => !prev.some(p => p.id === b.id || p.bookTitle === b.title));
+          if (availableToAdd.length > 0) {
+            const randomBook = availableToAdd[Math.floor(Math.random() * availableToAdd.length)];
+            const newLoan = {
+              id: `temp-${Date.now()}-${Math.random()}`,
+              coverUrl: randomBook.coverUrl,
+              bookTitle: randomBook.title,
+              author: randomBook.author,
+              shelf: randomBook.shelf,
+              daysLeft: Math.floor(Math.random() * 14) + 1
+            };
+            return [...prev, newLoan];
+          }
+        } else if (!shouldAdd && prev.length > 1) {
+          const indexToRemove = Math.floor(Math.random() * prev.length);
+          return prev.filter((_, i) => i !== indexToRemove);
+        }
+        return prev;
+      });
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [books]);
 
   // Reserved books by Alex Morgan
   const myReservations = books.filter((b) =>
@@ -127,7 +175,7 @@ export const StudentHomeDashboard = () => {
                 <CheckCircle className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white">{availableBooksCount}</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{liveAvailableBooksCount}</p>
             <p className="text-[11px] text-emerald-400 mt-1 font-medium flex items-center gap-1">
               <span>Ready on shelves now</span>
             </p>
@@ -143,7 +191,7 @@ export const StudentHomeDashboard = () => {
                 <Clock className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white">{reservedBooksCount}</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{liveReservedBooksCount}</p>
             <p className="text-[11px] text-amber-400 mt-1 font-medium flex items-center gap-1">
               <span>Hold placed by students</span>
             </p>
@@ -159,7 +207,7 @@ export const StudentHomeDashboard = () => {
                 <BookOpen className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white">{borrowedBooksCount}</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{liveBorrowedBooksCount}</p>
             <p className="text-[11px] text-indigo-400 mt-1 font-medium flex items-center gap-1">
               <span>In active student loans</span>
             </p>
@@ -175,8 +223,8 @@ export const StudentHomeDashboard = () => {
                 <AlertTriangle className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white">{overdueCount}</p>
-            <p className="text-[11px] text-slate-400 mt-1 font-medium">All student loans on time</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{liveOverdueCount}</p>
+            <p className="text-[11px] text-slate-400 mt-1 font-medium">{liveOverdueCount > 0 ? `${liveOverdueCount} student loans overdue` : "All student loans on time"}</p>
           </div>
         </div>
       </div>
@@ -190,7 +238,7 @@ export const StudentHomeDashboard = () => {
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <BookCheck className="w-5 h-5 text-indigo-400" />
-                <span>Currently Borrowed ({studentLoans.length})</span>
+                <span>Currently Borrowed ({liveStudentLoans.length})</span>
               </h3>
               <button
                 onClick={() => setActiveTab("my-library")}
@@ -201,7 +249,7 @@ export const StudentHomeDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {studentLoans.map((loan) => (
+              {liveStudentLoans.map((loan) => (
                 <div
                   key={loan.id}
                   className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex gap-3 hover:border-indigo-500/30 transition-all"

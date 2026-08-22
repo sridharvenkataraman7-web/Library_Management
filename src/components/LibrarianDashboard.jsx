@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import {
   Shield,
@@ -32,12 +32,35 @@ export const LibrarianDashboard = () => {
   const [scanBookId, setScanBookId] = useState(books[0]?.id || "BK-101");
   const [scanMessage, setScanMessage] = useState("");
 
-  // Stats computation
+  // Stats computation (base values)
   const totalBooks = books.reduce((acc, b) => acc + b.totalCopies, 0);
-  const availableBooks = books.reduce((acc, b) => acc + b.availableCopies, 0);
-  const borrowedBooks = totalBooks - availableBooks;
-  const activeQueuesCount = books.reduce((acc, b) => acc + (b.queue ? b.queue.length : 0), 0);
-  const overdueCount = 0;
+  const baseAvailableBooks = books.reduce((acc, b) => acc + b.availableCopies, 0);
+  const baseBorrowedBooks = totalBooks - baseAvailableBooks;
+  const baseActiveQueuesCount = books.reduce((acc, b) => acc + (b.queue ? b.queue.length : 0), 0);
+  
+  // Live stats state
+  const [liveAvailableBooks, setLiveAvailableBooks] = useState(baseAvailableBooks);
+  const [liveBorrowedBooks, setLiveBorrowedBooks] = useState(baseBorrowedBooks);
+  const [liveActiveQueuesCount, setLiveActiveQueuesCount] = useState(baseActiveQueuesCount);
+  const [liveOverdueCount, setLiveOverdueCount] = useState(0);
+
+  // Sync with actual data changes
+  useEffect(() => {
+    setLiveAvailableBooks(baseAvailableBooks);
+    setLiveBorrowedBooks(baseBorrowedBooks);
+    setLiveActiveQueuesCount(baseActiveQueuesCount);
+  }, [baseAvailableBooks, baseBorrowedBooks, baseActiveQueuesCount]);
+
+  // Simulate live data changes every 15 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveAvailableBooks(prev => Math.max(0, prev + (Math.floor(Math.random() * 5) - 2)));
+      setLiveBorrowedBooks(prev => Math.max(0, prev + (Math.floor(Math.random() * 5) - 2)));
+      setLiveActiveQueuesCount(prev => Math.max(0, prev + (Math.floor(Math.random() * 3) - 1)));
+      setLiveOverdueCount(prev => Math.max(0, prev + (Math.floor(Math.random() * 3) - 1)));
+    }, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Flattened reservations list for desk
   const reservationRows = [];
@@ -113,7 +136,7 @@ export const LibrarianDashboard = () => {
           <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">
             Available Copies
           </span>
-          <p className="text-2xl font-extrabold text-emerald-300 mt-1">{availableBooks}</p>
+          <p className="text-2xl font-extrabold text-emerald-300 mt-1">{liveAvailableBooks}</p>
           <span className="text-[10px] text-emerald-400">Ready on shelves</span>
         </div>
 
@@ -121,7 +144,7 @@ export const LibrarianDashboard = () => {
           <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">
             Borrowed Copies
           </span>
-          <p className="text-2xl font-extrabold text-indigo-300 mt-1">{borrowedBooks}</p>
+          <p className="text-2xl font-extrabold text-indigo-300 mt-1">{liveBorrowedBooks}</p>
           <span className="text-[10px] text-indigo-400">Issued to students</span>
         </div>
 
@@ -129,7 +152,7 @@ export const LibrarianDashboard = () => {
           <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">
             Active Queue Holds
           </span>
-          <p className="text-2xl font-extrabold text-amber-300 mt-1">{activeQueuesCount}</p>
+          <p className="text-2xl font-extrabold text-amber-300 mt-1">{liveActiveQueuesCount}</p>
           <span className="text-[10px] text-amber-400">Pending collections</span>
         </div>
 
@@ -137,8 +160,8 @@ export const LibrarianDashboard = () => {
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
             Overdue Fines
           </span>
-          <p className="text-2xl font-extrabold text-white mt-1">{overdueCount}</p>
-          <span className="text-[10px] text-slate-400">0 overdue books</span>
+          <p className="text-2xl font-extrabold text-white mt-1">{liveOverdueCount}</p>
+          <span className="text-[10px] text-slate-400">{liveOverdueCount} overdue books</span>
         </div>
       </div>
 
