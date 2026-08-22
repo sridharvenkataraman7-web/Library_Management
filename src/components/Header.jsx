@@ -286,72 +286,35 @@ export const Header = () => {
               <ChevronDown className="w-3.5 h-3.5 text-slate-400 ml-1" />
             </button>
 
-            {/* Persona Switcher Dropdown */}
+            {/* User Profile Menu Dropdown */}
             {showPersonaMenu && (
               <div className="absolute right-0 mt-3 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 p-2 divide-y divide-slate-800/80">
                 <div className="p-3 bg-slate-950/60 rounded-xl mb-2">
                   <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                    Current Active Role
+                    {persona === "student" ? "Student Session" : "Librarian Admin Session"}
                   </p>
                   <p className="text-sm font-bold text-white mt-0.5">{profile.name}</p>
                   <p className="text-xs text-indigo-400 font-mono mt-0.5">{profile.id}</p>
+                  {profile.department && (
+                    <p className="text-[11px] text-slate-400 mt-1">{profile.department}</p>
+                  )}
                 </div>
 
-                <div className="py-2 space-y-1">
-                  <p className="text-[10px] uppercase font-bold text-slate-400 px-2 py-1">
-                    Switch Campus Persona
-                  </p>
+                <div className="pt-2">
                   <button
                     onClick={() => {
-                      switchPersona("student");
                       setShowPersonaMenu(false);
+                      logout();
                     }}
-                    className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      persona === "student"
-                        ? "bg-indigo-600/20 text-indigo-300 border border-indigo-500/30"
-                        : "text-slate-300 hover:bg-slate-800"
-                    }`}
+                    className="w-full flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-all"
                   >
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-indigo-400" />
-                      <span>Student View (Alex Morgan)</span>
-                    </div>
-                    {persona === "student" && <span className="text-[10px] font-bold text-indigo-400">ACTIVE</span>}
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out from Campus</span>
                   </button>
-
-                  <button
-                    onClick={() => {
-                      switchPersona("librarian");
-                      setShowPersonaMenu(false);
-                    }}
-                    className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      persona === "librarian"
-                        ? "bg-violet-600/20 text-violet-300 border border-violet-500/30"
-                        : "text-slate-300 hover:bg-slate-800"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-violet-400" />
-                      <span>Librarian View (Dr. Sarah Lin)</span>
-                    </div>
-                    {persona === "librarian" && <span className="text-[10px] font-bold text-violet-400">ACTIVE</span>}
-                  </button>
-
-                  <div className="pt-2 border-t border-slate-800">
-                    <button
-                      onClick={() => {
-                        setShowPersonaMenu(false);
-                        logout();
-                      }}
-                      className="w-full flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold text-rose-400 hover:bg-rose-500/10 transition-all"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Sign Out from Campus</span>
-                    </button>
-                  </div>
                 </div>
               </div>
             )}
+
 
           </div>
         </div>
