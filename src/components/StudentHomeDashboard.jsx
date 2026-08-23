@@ -61,19 +61,11 @@ export const StudentHomeDashboard = () => {
   const borrowedBooksCount = books.filter((b) => b.status === "Checked Out").length;
   const overdueCount = 0; // No overdue fines currently
 
-  // Live state for counts
-  const [liveAvailable, setLiveAvailable] = React.useState(availableBooksCount);
-  const [liveReserved, setLiveReserved] = React.useState(reservedBooksCount);
-  const [liveBorrowed, setLiveBorrowed] = React.useState(borrowedBooksCount);
-  const [liveOverdue, setLiveOverdue] = React.useState(overdueCount);
-
-  // Sync state if base data changes
-  React.useEffect(() => {
-    setLiveAvailable(availableBooksCount);
-    setLiveReserved(reservedBooksCount);
-    setLiveBorrowed(borrowedBooksCount);
-    setLiveOverdue(overdueCount);
-  }, [availableBooksCount, reservedBooksCount, borrowedBooksCount, overdueCount]);
+  // Live state for counts (Large campus realistic metrics)
+  const [liveAvailable, setLiveAvailable] = React.useState(1542);
+  const [liveReserved, setLiveReserved] = React.useState(615);
+  const [liveBorrowed, setLiveBorrowed] = React.useState(345);
+  const [liveOverdue, setLiveOverdue] = React.useState(0);
 
   // Simulate dynamic library changes (borrowing/returning/reservations)
   React.useEffect(() => {
@@ -81,17 +73,17 @@ export const StudentHomeDashboard = () => {
       const choice = Math.floor(Math.random() * 4);
       if (choice === 0) {
         // Book borrowed: available decreases, borrowed increases
-        setLiveAvailable(prev => Math.max(1, prev - 1));
+        setLiveAvailable(prev => Math.max(1501, prev - 1));
         setLiveBorrowed(prev => prev + 1);
       } else if (choice === 1) {
         // Book returned: available increases, borrowed decreases
         setLiveAvailable(prev => prev + 1);
-        setLiveBorrowed(prev => Math.max(1, prev - 1));
+        setLiveBorrowed(prev => Math.max(10, prev - 1));
       } else if (choice === 2) {
-        // Reservation changes
+        // Reservation changes: fluctuate between 500 and 800
         setLiveReserved(prev => {
           const change = Math.random() > 0.5 ? 1 : -1;
-          return Math.max(0, prev + change);
+          return Math.max(500, Math.min(800, prev + change));
         });
       } else if (choice === 3) {
         // Overdue status changes

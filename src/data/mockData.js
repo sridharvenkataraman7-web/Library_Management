@@ -594,6 +594,30 @@ export const INITIAL_STUDENT_LOANS = [
     dueDate: "2026-08-28",
     daysLeft: 6,
     status: "Active"
+  },
+  {
+    id: "LOAN-8803",
+    bookId: "BK-102",
+    bookTitle: "Designing Data-Intensive Applications",
+    author: "Martin Kleppmann",
+    coverUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600",
+    shelf: "CS-08",
+    borrowedDate: "2026-08-14",
+    dueDate: "2026-08-28",
+    daysLeft: 8,
+    status: "Active"
+  },
+  {
+    id: "LOAN-8804",
+    bookId: "BK-120",
+    bookTitle: "The Pragmatic Programmer",
+    author: "David Thomas, Andrew Hunt",
+    coverUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600",
+    shelf: "CS-12",
+    borrowedDate: "2026-08-16",
+    dueDate: "2026-08-30",
+    daysLeft: 10,
+    status: "Active"
   }
 ];
 
