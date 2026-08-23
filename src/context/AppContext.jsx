@@ -10,96 +10,239 @@ import {
 
 const AppContext = createContext();
 
-export const AppProvider = ({ children }) => {
-  // Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    const savedAuth = localStorage.getItem("librax_auth");
-    return savedAuth ? JSON.parse(savedAuth) : false;
-  });
+const API_BASE = "/api";
 
-  // Persona & View Navigation
-  const [persona, setPersona] = useState("student"); // "student" | "librarian"
+// ─── JWT helpers ─────────────────────────────────────────────────────────────
+const getToken = () => localStorage.getItem("smartlib_token");
+const setToken = (t) => localStorage.setItem("smartlib_token", t);
+const clearToken = () => localStorage.removeItem("smartlib_token");
+
+const apiHeaders = () => ({
+  "Content-Type": "application/json",
+  ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+});
+
+// ─── Auth step types ──────────────────────────────────────────────────────────
+// "email"  → enter Gmail
+// "otp"    → enter 6-digit code
+// "done"   → authenticated
+
+export const AppProvider = ({ children }) => {
+  // ── Auth State ──────────────────────────────────────────────────────────────
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!getToken());
+  const [authView, setAuthView] = useState("signin"); // "signin" | "register"
+  const [authStep, setAuthStep] = useState("email"); // "email" | "otp" | "done"
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [authSuccess, setAuthSuccess] = useState("");
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [pendingRole, setPendingRole] = useState("student");
+  const [otpCooldown, setOtpCooldown] = useState(0); // seconds remaining
+  const [devOtp, setDevOtp] = useState(""); // only in dev mode (no Gmail configured)
+
+  // ── Persona & View Navigation ───────────────────────────────────────────────
+  const [persona, setPersona] = useState(() => {
+    try {
+      const saved = localStorage.getItem("smartlib_persona");
+      return saved || "student";
+    } catch { return "student"; }
+  });
   const [activeTab, setActiveTab] = useState("dashboard");
 
-  // Registered Users Registry with localStorage fallback
-  const [registeredUsers, setRegisteredUsers] = useState(() => {
-    const saved = localStorage.getItem("librax_users");
-    return saved
-      ? JSON.parse(saved)
-      : [
-          {
-            email: "alex.morgan@campus.edu",
-            name: "Alex Morgan",
-            id: "STU-2024-8842",
-            department: "Computer Science & AI",
-            year: "3rd Year Undergraduate",
-            avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250",
-            borrowedCount: 2,
-            maxLoans: 5,
-            finesDue: "$0.00",
-            joinDate: "Sept 2023"
-          }
-        ];
-  });
-
+  // ── Student & Librarian Profiles ────────────────────────────────────────────
   const [studentProfile, setStudentProfile] = useState(() => {
-    const savedProf = localStorage.getItem("librax_current_student");
-    return savedProf ? JSON.parse(savedProf) : INITIAL_STUDENT;
+    try {
+      const saved = localStorage.getItem("smartlib_current_student");
+      return saved ? JSON.parse(saved) : INITIAL_STUDENT;
+    } catch { return INITIAL_STUDENT; }
   });
-
   const [librarianProfile] = useState(INITIAL_LIBRARIAN);
 
-  // Sync state to localStorage
+  // ── Countdown timer for OTP resend cooldown ─────────────────────────────────
   useEffect(() => {
-    localStorage.setItem("librax_users", JSON.stringify(registeredUsers));
-  }, [registeredUsers]);
+    if (otpCooldown <= 0) return;
+    const t = setInterval(() => setOtpCooldown((c) => Math.max(0, c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [otpCooldown]);
+
+  // ── Sync persona to localStorage ────────────────────────────────────────────
+  useEffect(() => {
+    localStorage.setItem("smartlib_persona", persona);
+  }, [persona]);
 
   useEffect(() => {
-    localStorage.setItem("librax_current_student", JSON.stringify(studentProfile));
+    localStorage.setItem("smartlib_current_student", JSON.stringify(studentProfile));
   }, [studentProfile]);
 
-  const login = (email, password, role = "student") => {
-    if (role === "student") {
-      const userMatch = registeredUsers.find(
-        (u) => u.email.toLowerCase() === email.trim().toLowerCase()
-      );
-      if (userMatch) {
-        setStudentProfile(userMatch);
-      } else {
-        const formattedName = email.split("@")[0].replace(".", " ");
-        setStudentProfile({
-          id: `STU-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-          name: formattedName.charAt(0).toUpperCase() + formattedName.slice(1),
-          email: email,
-          department: "Computer Science & AI",
-          year: "1st Year Undergraduate",
-          avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250",
-          borrowedCount: 0,
-          maxLoans: 5,
-          finesDue: "$0.00",
-          joinDate: "Aug 2026"
-        });
+  // ── Register new account ────────────────────────────────────────────────────
+  const registerUser = async ({ name, email, role, department }) => {
+    setAuthLoading(true);
+    setAuthError("");
+    setAuthSuccess("");
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email: email.trim(), role, department }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setAuthError(data.message || "Registration failed.");
+        if (data.alreadyExists) setAuthView("signin");
+        return false;
       }
+      setAuthSuccess(`Account created! Sign in with ${email.trim()}.`);
+      setAuthView("signin");
+      return true;
+    } catch {
+      setAuthError("Cannot reach the server. Make sure the backend is running.");
+      return false;
+    } finally {
+      setAuthLoading(false);
     }
-    setIsAuthenticated(true);
+  };
+
+  // ── Step 1: Send OTP ────────────────────────────────────────────────────────
+  const sendOtp = async (email) => {
+    setAuthLoading(true);
+    setAuthError("");
+    setAuthSuccess("");
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/send-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        setAuthError(data.message || "Failed to send OTP.");
+        if (data.cooldownRemaining) setOtpCooldown(data.cooldownRemaining);
+        if (data.notRegistered) setAuthView("register");
+        return false;
+      }
+
+      setPendingEmail(email.trim());
+      // Role comes from the backend user store
+      if (data.userRole) setPendingRole(data.userRole);
+      setOtpCooldown(60);
+      setAuthStep("otp");
+
+      if (data.devMode && data.devOtp) {
+        setDevOtp(data.devOtp);
+        setAuthSuccess(`[Dev Mode] OTP: ${data.devOtp}`);
+      } else {
+        setDevOtp("");
+        setAuthSuccess(`OTP sent to ${email.trim()}. Check your Gmail inbox.`);
+      }
+      return true;
+    } catch {
+      setAuthError("Cannot reach the server. Make sure the backend is running.");
+      return false;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // ── Step 2: Verify OTP ──────────────────────────────────────────────────────
+  const verifyOtp = async (otp) => {
+    setAuthLoading(true);
+    setAuthError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: pendingEmail, otp: otp.trim() }),
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        setAuthError(data.message || "Incorrect OTP.");
+        if (data.locked || data.expired) setAuthStep("email");
+        return false;
+      }
+
+      // ✅ Authenticated — store token and build profile
+      setToken(data.token);
+      const user = data.user;
+
+      if (user.role === "librarian") {
+        setPersona("librarian");
+        setActiveTab("librarian-dashboard");
+      } else {
+        setPersona("student");
+        setActiveTab("dashboard");
+        setStudentProfile((prev) => ({
+          ...prev,
+          name: user.name,
+          email: user.email,
+          id: user.id,
+        }));
+      }
+
+      setIsAuthenticated(true);
+      setAuthStep("done");
+      setDevOtp("");
+      setAuthError("");
+      setAuthSuccess("");
+      setPendingEmail("");
+      return true;
+    } catch (err) {
+      setAuthError("Cannot reach the server. Make sure the backend is running.");
+      return false;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // ── Resend OTP ───────────────────────────────────────────────────────────────
+  const resendOtp = () => sendOtp(pendingEmail);
+
+  // ── Legacy demo quick-login (bypasses OTP for demo personas) ─────────────────
+  const quickDemoLogin = (role) => {
+    const demoProfile = role === "librarian" ? INITIAL_LIBRARIAN : INITIAL_STUDENT;
     setPersona(role);
     if (role === "librarian") {
       setActiveTab("librarian-dashboard");
     } else {
+      setStudentProfile(demoProfile);
       setActiveTab("dashboard");
     }
+    // Store a demo token flag
+    localStorage.setItem("smartlib_token", "demo_token_" + role);
+    setIsAuthenticated(true);
   };
+
+  // ── Logout ───────────────────────────────────────────────────────────────────
+  const logout = async () => {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: "POST",
+        headers: apiHeaders(),
+      });
+    } catch { /* ignore */ }
+    clearToken();
+    setIsAuthenticated(false);
+    setAuthStep("email");
+    setAuthError("");
+    setAuthSuccess("");
+    setDevOtp("");
+    setPendingEmail("");
+  };
+
+  // ── Registered Users (legacy compatibility) ──────────────────────────────────
+  const [registeredUsers, setRegisteredUsers] = useState(() => {
+    const saved = localStorage.getItem("smartlib_users");
+    return saved ? JSON.parse(saved) : [INITIAL_STUDENT];
+  });
 
   const signup = (userData) => {
     const existing = registeredUsers.find(
       (u) => u.email.toLowerCase() === userData.email.trim().toLowerCase()
     );
-    if (existing) {
-      return {
-        success: false,
-        message: "An account with this email address already exists. Please sign in instead."
-      };
-    }
+    if (existing) return { success: false, message: "An account with this email already exists." };
 
     const newUser = {
       id: userData.studentId || `STU-2026-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -119,37 +262,27 @@ export const AppProvider = ({ children }) => {
     setIsAuthenticated(true);
     setPersona("student");
     setActiveTab("dashboard");
-
-    return {
-      success: true,
-      message: "Account created successfully! Welcome to LibraX."
-    };
+    return { success: true, message: "Account created!" };
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
-  };
-
-
-
-  // State Collections with localStorage fallback
+  // ── State Collections ─────────────────────────────────────────────────────────
   const [books, setBooks] = useState(() => {
-    const saved = localStorage.getItem("librax_books");
+    const saved = localStorage.getItem("smartlib_books");
     return saved ? JSON.parse(saved) : INITIAL_BOOKS;
   });
 
   const [notifications, setNotifications] = useState(() => {
-    const saved = localStorage.getItem("librax_notifications");
+    const saved = localStorage.getItem("smartlib_notifications");
     return saved ? JSON.parse(saved) : INITIAL_NOTIFICATIONS;
   });
 
   const [studentLoans, setStudentLoans] = useState(() => {
-    const saved = localStorage.getItem("librax_loans");
+    const saved = localStorage.getItem("smartlib_loans");
     return saved ? JSON.parse(saved) : INITIAL_STUDENT_LOANS;
   });
 
   const [wishlist, setWishlist] = useState(() => {
-    const saved = localStorage.getItem("librax_wishlist");
+    const saved = localStorage.getItem("smartlib_wishlist");
     return saved ? JSON.parse(saved) : INITIAL_WISHLIST;
   });
 
@@ -162,33 +295,19 @@ export const AppProvider = ({ children }) => {
   const [globalSearch, setGlobalSearch] = useState("");
 
   // Sync to LocalStorage
-  useEffect(() => {
-    localStorage.setItem("librax_books", JSON.stringify(books));
-  }, [books]);
+  useEffect(() => { localStorage.setItem("smartlib_books", JSON.stringify(books)); }, [books]);
+  useEffect(() => { localStorage.setItem("smartlib_notifications", JSON.stringify(notifications)); }, [notifications]);
+  useEffect(() => { localStorage.setItem("smartlib_loans", JSON.stringify(studentLoans)); }, [studentLoans]);
+  useEffect(() => { localStorage.setItem("smartlib_wishlist", JSON.stringify(wishlist)); }, [wishlist]);
+  useEffect(() => { localStorage.setItem("smartlib_users", JSON.stringify(registeredUsers)); }, [registeredUsers]);
 
-  useEffect(() => {
-    localStorage.setItem("librax_notifications", JSON.stringify(notifications));
-  }, [notifications]);
-
-  useEffect(() => {
-    localStorage.setItem("librax_loans", JSON.stringify(studentLoans));
-  }, [studentLoans]);
-
-  useEffect(() => {
-    localStorage.setItem("librax_wishlist", JSON.stringify(wishlist));
-  }, [wishlist]);
-
-  // Persona Switch Handler
+  // ── Persona Switch ────────────────────────────────────────────────────────────
   const switchPersona = (role) => {
     setPersona(role);
-    if (role === "librarian") {
-      setActiveTab("librarian-dashboard");
-    } else {
-      setActiveTab("dashboard");
-    }
+    setActiveTab(role === "librarian" ? "librarian-dashboard" : "dashboard");
   };
 
-  // Student Actions
+  // ── Student Actions ───────────────────────────────────────────────────────────
   const reserveBook = (bookId) => {
     setBooks((prevBooks) =>
       prevBooks.map((b) => {
@@ -196,7 +315,6 @@ export const AppProvider = ({ children }) => {
           const currentQueue = b.queue || [];
           const alreadyInQueue = currentQueue.some((q) => q.studentId === studentProfile.id);
           if (alreadyInQueue) return b;
-
           const queuePos = currentQueue.length + 1;
           const updatedQueue = [
             ...currentQueue,
@@ -204,33 +322,28 @@ export const AppProvider = ({ children }) => {
               studentId: studentProfile.id,
               name: `YOU (${studentProfile.name})`,
               reservedDate: new Date().toISOString().split("T")[0],
-              estReturn: new Date(Date.now() + queuePos * 3 * 86400000).toISOString().split("T")[0]
-            }
+              estReturn: new Date(Date.now() + queuePos * 3 * 86400000).toISOString().split("T")[0],
+            },
           ];
-
-          return {
-            ...b,
-            status: b.availableCopies > 0 ? "Reserved" : "Checked Out",
-            queue: updatedQueue
-          };
+          return { ...b, status: b.availableCopies > 0 ? "Reserved" : "Checked Out", queue: updatedQueue };
         }
         return b;
       })
     );
-
-    // Create Notification
     const targetBook = books.find((b) => b.id === bookId);
-    const newNotif = {
-      id: `NOTIF-${Date.now()}`,
-      title: "Reservation Logged Successfully!",
-      message: `You reserved '${targetBook?.title}'. We'll notify you when it's ready at Counter Desk.`,
-      bookId,
-      bookTitle: targetBook?.title || "Book",
-      type: "RESERVATION_CONFIRMED",
-      timestamp: "Just now",
-      isRead: false
-    };
-    setNotifications((prev) => [newNotif, ...prev]);
+    setNotifications((prev) => [
+      {
+        id: `NOTIF-${Date.now()}`,
+        title: "Reservation Logged Successfully!",
+        message: `You reserved '${targetBook?.title}'. We'll notify you when it's ready.`,
+        bookId,
+        bookTitle: targetBook?.title || "Book",
+        type: "RESERVATION_CONFIRMED",
+        timestamp: "Just now",
+        isRead: false,
+      },
+      ...prev,
+    ]);
   };
 
   const cancelReservation = (bookId) => {
@@ -238,32 +351,19 @@ export const AppProvider = ({ children }) => {
       prevBooks.map((b) => {
         if (b.id === bookId) {
           const updatedQueue = (b.queue || []).filter((q) => q.studentId !== studentProfile.id);
-          return {
-            ...b,
-            queue: updatedQueue,
-            status: updatedQueue.length === 0 && b.availableCopies > 0 ? "Available" : b.status
-          };
+          return { ...b, queue: updatedQueue, status: updatedQueue.length === 0 && b.availableCopies > 0 ? "Available" : b.status };
         }
         return b;
       })
     );
-
-    const newNotif = {
-      id: `NOTIF-${Date.now()}`,
-      title: "Reservation Cancelled",
-      message: `Your reservation for the book has been removed.`,
-      bookId,
-      type: "RESERVATION_CANCELLED",
-      timestamp: "Just now",
-      isRead: false
-    };
-    setNotifications((prev) => [newNotif, ...prev]);
+    setNotifications((prev) => [
+      { id: `NOTIF-${Date.now()}`, title: "Reservation Cancelled", message: "Your reservation has been removed.", bookId, type: "RESERVATION_CANCELLED", timestamp: "Just now", isRead: false },
+      ...prev,
+    ]);
   };
 
   const toggleWishlist = (bookId) => {
-    setWishlist((prev) =>
-      prev.includes(bookId) ? prev.filter((id) => id !== bookId) : [...prev, bookId]
-    );
+    setWishlist((prev) => prev.includes(bookId) ? prev.filter((id) => id !== bookId) : [...prev, bookId]);
   };
 
   const renewLoan = (loanId) => {
@@ -276,35 +376,21 @@ export const AppProvider = ({ children }) => {
         return loan;
       })
     );
-
     setNotifications((prev) => [
-      {
-        id: `NOTIF-${Date.now()}`,
-        title: "Loan Renewal Extended",
-        message: "Your loan period was successfully extended by 7 days.",
-        type: "LOAN_RENEWED",
-        timestamp: "Just now",
-        isRead: false
-      },
-      ...prev
+      { id: `NOTIF-${Date.now()}`, title: "Loan Renewal Extended", message: "Your loan was extended by 7 days.", type: "LOAN_RENEWED", timestamp: "Just now", isRead: false },
+      ...prev,
     ]);
   };
 
   const returnBookLoan = (loanId) => {
     const loan = studentLoans.find((l) => l.id === loanId);
     setStudentLoans((prev) => prev.filter((l) => l.id !== loanId));
-
     if (loan) {
       setBooks((prevBooks) =>
         prevBooks.map((b) => {
           if (b.id === loan.bookId) {
             const newAvail = b.availableCopies + 1;
-            const hasQueue = b.queue && b.queue.length > 0;
-            return {
-              ...b,
-              availableCopies: newAvail,
-              status: hasQueue ? "Reserved" : "Available"
-            };
+            return { ...b, availableCopies: newAvail, status: b.queue?.length > 0 ? "Reserved" : "Available" };
           }
           return b;
         })
@@ -312,18 +398,13 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // Notification actions
+  // ── Notification Actions ──────────────────────────────────────────────────────
   const markNotificationRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
   };
+  const clearAllNotifications = () => setNotifications([]);
 
-  const clearAllNotifications = () => {
-    setNotifications([]);
-  };
-
-  // Librarian Actions
+  // ── Librarian Actions ─────────────────────────────────────────────────────────
   const addBook = (newBookData) => {
     const createdBook = {
       id: `BK-${Date.now()}`,
@@ -334,27 +415,17 @@ export const AppProvider = ({ children }) => {
       totalCopies: Number(newBookData.totalCopies),
       status: "Available",
       queue: [],
-      tags: [newBookData.category.toLowerCase(), newBookData.department.toLowerCase()]
+      tags: [newBookData.category.toLowerCase(), newBookData.department.toLowerCase()],
     };
     setBooks((prev) => [createdBook, ...prev]);
-
     setNotifications((prev) => [
-      {
-        id: `NOTIF-${Date.now()}`,
-        title: "New Book Added to Catalogue",
-        message: `'${createdBook.title}' is now available on ${createdBook.floor}, ${createdBook.shelf}.`,
-        type: "CATALOGUE_UPDATE",
-        timestamp: "Just now",
-        isRead: false
-      },
-      ...prev
+      { id: `NOTIF-${Date.now()}`, title: "New Book Added", message: `'${createdBook.title}' is now on ${createdBook.floor}, ${createdBook.shelf}.`, type: "CATALOGUE_UPDATE", timestamp: "Just now", isRead: false },
+      ...prev,
     ]);
   };
 
   const updateBook = (bookId, updatedFields) => {
-    setBooks((prev) =>
-      prev.map((b) => (b.id === bookId ? { ...b, ...updatedFields } : b))
-    );
+    setBooks((prev) => prev.map((b) => (b.id === bookId ? { ...b, ...updatedFields } : b)));
   };
 
   const deleteBook = (bookId) => {
@@ -362,73 +433,74 @@ export const AppProvider = ({ children }) => {
   };
 
   const updateReservationStatus = (bookId, studentId, action) => {
-    // Action: "MARK_AVAILABLE" | "MARK_COLLECTED" | "CANCEL"
     setBooks((prevBooks) =>
       prevBooks.map((b) => {
         if (b.id === bookId) {
           if (action === "MARK_COLLECTED") {
             const updatedQueue = (b.queue || []).filter((q) => q.studentId !== studentId);
-            return {
-              ...b,
-              availableCopies: Math.max(0, b.availableCopies - 1),
-              queue: updatedQueue,
-              status: b.availableCopies - 1 > 0 ? "Available" : "Checked Out"
-            };
+            return { ...b, availableCopies: Math.max(0, b.availableCopies - 1), queue: updatedQueue, status: b.availableCopies - 1 > 0 ? "Available" : "Checked Out" };
           }
           if (action === "CANCEL") {
             const updatedQueue = (b.queue || []).filter((q) => q.studentId !== studentId);
-            return {
-              ...b,
-              queue: updatedQueue,
-              status: updatedQueue.length === 0 ? "Available" : "Reserved"
-            };
+            return { ...b, queue: updatedQueue, status: updatedQueue.length === 0 ? "Available" : "Reserved" };
           }
         }
         return b;
       })
     );
-
     const targetBook = books.find((b) => b.id === bookId);
     if (action === "MARK_AVAILABLE") {
       setNotifications((prev) => [
-        {
-          id: `NOTIF-${Date.now()}`,
-          title: "Your reserved book is now available!",
-          message: `'${targetBook?.title}' is ready for pickup at Counter Desk #1.`,
-          bookId,
-          bookTitle: targetBook?.title,
-          type: "BOOK_AVAILABLE",
-          pickupDeadline: "Tomorrow 17:00",
-          pickupLocation: "Central Library Counter #1",
-          timestamp: "Just now",
-          isRead: false
-        },
-        ...prev
+        { id: `NOTIF-${Date.now()}`, title: "Your reserved book is ready!", message: `'${targetBook?.title}' is ready for pickup at Counter #1.`, bookId, type: "BOOK_AVAILABLE", pickupDeadline: "Tomorrow 17:00", pickupLocation: "Central Library Counter #1", timestamp: "Just now", isRead: false },
+        ...prev,
       ]);
     }
   };
 
-  // Helper getters
+  // ── Helpers ───────────────────────────────────────────────────────────────────
   const unreadNotifCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <AppContext.Provider
       value={{
+        // Auth
         isAuthenticated,
-        login,
-        signup,
+        authView,
+        setAuthView,
+        authStep,
+        setAuthStep,
+        authLoading,
+        authError,
+        authSuccess,
+        setAuthError,
+        setAuthSuccess,
+        pendingEmail,
+        pendingRole,
+        setPendingRole,
+        otpCooldown,
+        devOtp,
+        registerUser,
+        sendOtp,
+        verifyOtp,
+        resendOtp,
+        quickDemoLogin,
         logout,
+        signup,
+        // Personas & Navigation
         persona,
         switchPersona,
         activeTab,
         setActiveTab,
+        // Profiles
+        studentProfile,
+        librarianProfile,
+        // Books & State
         books,
         notifications,
         unreadNotifCount,
         studentLoans,
         wishlist,
-        studentProfile,
-        librarianProfile,
+        // Modals
         selectedBook,
         setSelectedBook,
         mapTargetBook,
@@ -441,6 +513,7 @@ export const AppProvider = ({ children }) => {
         setEditingBook,
         globalSearch,
         setGlobalSearch,
+        // Actions
         reserveBook,
         cancelReservation,
         toggleWishlist,
@@ -451,13 +524,12 @@ export const AppProvider = ({ children }) => {
         addBook,
         updateBook,
         deleteBook,
-        updateReservationStatus
+        updateReservationStatus,
       }}
     >
       {children}
     </AppContext.Provider>
   );
-
 };
 
 export const useApp = () => useContext(AppContext);

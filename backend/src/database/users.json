@@ -1,0 +1,26 @@
+[
+  {
+    "id": "STU-2024-8842",
+    "name": "Alex Morgan",
+    "email": "alex.morgan@campus.edu",
+    "role": "student",
+    "department": "Computer Science & AI",
+    "joinDate": "Sept 2023"
+  },
+  {
+    "id": "LIB-2023-0001",
+    "name": "Dr. Sarah Lin",
+    "email": "sarah.lin@campus.edu",
+    "role": "librarian",
+    "department": "Library Administration",
+    "joinDate": "Jan 2023"
+  },
+  {
+    "id": "STU-MT5I0E2P",
+    "name": "Sridhar",
+    "email": "sridharvenkataraman7@gmail.com",
+    "role": "student",
+    "department": "Computer Science & AI",
+    "joinDate": "Aug 2026"
+  }
+]
