@@ -10,7 +10,7 @@ import {
 
 const AppContext = createContext();
 
-const API_BASE = "/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 
 // ─── JWT helpers ─────────────────────────────────────────────────────────────
 const getToken = () => localStorage.getItem("smartlib_token");
