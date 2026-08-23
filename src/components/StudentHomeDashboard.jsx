@@ -39,6 +39,49 @@ export const StudentHomeDashboard = () => {
   const borrowedBooksCount = books.filter((b) => b.status === "Checked Out").length;
   const overdueCount = 0; // No overdue fines currently
 
+  // Live state for counts
+  const [liveAvailable, setLiveAvailable] = React.useState(availableBooksCount);
+  const [liveReserved, setLiveReserved] = React.useState(reservedBooksCount);
+  const [liveBorrowed, setLiveBorrowed] = React.useState(borrowedBooksCount);
+  const [liveOverdue, setLiveOverdue] = React.useState(overdueCount);
+
+  // Sync state if base data changes
+  React.useEffect(() => {
+    setLiveAvailable(availableBooksCount);
+    setLiveReserved(reservedBooksCount);
+    setLiveBorrowed(borrowedBooksCount);
+    setLiveOverdue(overdueCount);
+  }, [availableBooksCount, reservedBooksCount, borrowedBooksCount, overdueCount]);
+
+  // Simulate dynamic library changes (borrowing/returning/reservations)
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      const choice = Math.floor(Math.random() * 4);
+      if (choice === 0) {
+        // Book borrowed: available decreases, borrowed increases
+        setLiveAvailable(prev => Math.max(1, prev - 1));
+        setLiveBorrowed(prev => prev + 1);
+      } else if (choice === 1) {
+        // Book returned: available increases, borrowed decreases
+        setLiveAvailable(prev => prev + 1);
+        setLiveBorrowed(prev => Math.max(1, prev - 1));
+      } else if (choice === 2) {
+        // Reservation changes
+        setLiveReserved(prev => {
+          const change = Math.random() > 0.5 ? 1 : -1;
+          return Math.max(0, prev + change);
+        });
+      } else if (choice === 3) {
+        // Overdue status changes
+        setLiveOverdue(prev => {
+          const change = Math.random() > 0.7 ? 1 : -1;
+          return Math.max(0, Math.min(3, prev + change));
+        });
+      }
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   // Reserved books by Alex Morgan
   const myReservations = books.filter((b) =>
     (b.queue || []).some((q) => q.studentId === studentProfile.id)
@@ -127,7 +170,7 @@ export const StudentHomeDashboard = () => {
                 <CheckCircle className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white">{availableBooksCount}</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{liveAvailable}</p>
             <p className="text-[11px] text-emerald-400 mt-1 font-medium flex items-center gap-1">
               <span>Ready on shelves now</span>
             </p>
@@ -143,7 +186,7 @@ export const StudentHomeDashboard = () => {
                 <Clock className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white">{reservedBooksCount}</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{liveReserved}</p>
             <p className="text-[11px] text-amber-400 mt-1 font-medium flex items-center gap-1">
               <span>Hold placed by students</span>
             </p>
@@ -159,7 +202,7 @@ export const StudentHomeDashboard = () => {
                 <BookOpen className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white">{borrowedBooksCount}</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{liveBorrowed}</p>
             <p className="text-[11px] text-indigo-400 mt-1 font-medium flex items-center gap-1">
               <span>In active student loans</span>
             </p>
@@ -175,7 +218,7 @@ export const StudentHomeDashboard = () => {
                 <AlertTriangle className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl sm:text-3xl font-extrabold text-white">{overdueCount}</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{liveOverdue}</p>
             <p className="text-[11px] text-slate-400 mt-1 font-medium">All student loans on time</p>
           </div>
         </div>
