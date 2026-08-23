@@ -109,6 +109,11 @@ export const AuthPages = () => {
   const handleSendOtp = async (e) => {
     e?.preventDefault();
     if (!email.trim()) { setAuthError("Please enter your email address."); return; }
+    const emailLower = email.trim().toLowerCase();
+    if (!emailLower.endsWith("ksrei.com") && !emailLower.endsWith("cse24_27@ksrce.ac.in")) {
+      setAuthError("Access restricted. Please use @ksrei.com (Librarians) or cse24_27@ksrce.ac.in (Students) emails.");
+      return;
+    }
     await sendOtp(email);
   };
 
@@ -121,8 +126,13 @@ export const AuthPages = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (regEmail.trim().toLowerCase().endsWith("ksrei.com")) {
+    const emailLower = regEmail.trim().toLowerCase();
+    if (emailLower.endsWith("ksrei.com")) {
       setAuthError("Librarians with @ksrei.com domain do not need to register. Please sign in directly!");
+      return;
+    }
+    if (!emailLower.endsWith("cse24_27@ksrce.ac.in")) {
+      setAuthError("Registration is restricted to college student emails ending with cse24_27@ksrce.ac.in");
       return;
     }
     if (!regName.trim() || !regEmail.trim()) {
@@ -200,7 +210,7 @@ export const AuthPages = () => {
                   <UserPlus className="w-6 h-6 text-indigo-400" />
                 </div>
                 <h2 className="text-xl font-extrabold text-white">Create Student Account</h2>
-                <p className="text-xs text-slate-400">Register your Gmail to access the Student Portal.</p>
+                <p className="text-xs text-slate-400">Register your college student email address to access the Student Portal.</p>
               </div>
 
               <form onSubmit={handleRegister} className="space-y-4">
@@ -220,13 +230,13 @@ export const AuthPages = () => {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-xs text-slate-300 font-semibold mb-1.5">Gmail Address *</label>
+                  <label className="block text-xs text-slate-300 font-semibold mb-1.5">College Student Email *</label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
                       type="email" required value={regEmail}
                       onChange={(e) => { setRegEmail(e.target.value); clearMessages(); }}
-                      placeholder="you@gmail.com"
+                      placeholder="you_cse24_27@ksrce.ac.in"
                       className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/60 border border-slate-700 text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                     />
                   </div>
@@ -275,7 +285,7 @@ export const AuthPages = () => {
                 </div>
                 <h2 className="text-xl font-extrabold text-white">Sign In to Campus Portal</h2>
                 <p className="text-xs text-slate-400">
-                  Librarians enter @ksrei.com domain email. Students enter registered Gmail.
+                  Librarians enter @ksrei.com email. Students enter cse24_27@ksrce.ac.in email.
                 </p>
               </div>
 
@@ -287,7 +297,7 @@ export const AuthPages = () => {
                     <input
                       type="email" required value={email}
                       onChange={(e) => { setEmail(e.target.value); clearMessages(); }}
-                      placeholder="you@ksrei.com or you@gmail.com"
+                      placeholder="you@ksrei.com or you_cse24_27@ksrce.ac.in"
                       className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/60 border border-slate-700 text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                     />
                   </div>

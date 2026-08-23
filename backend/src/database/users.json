@@ -22,5 +22,13 @@
     "role": "student",
     "department": "Computer Science & AI",
     "joinDate": "Aug 2026"
+  },
+  {
+    "id": "LIB-MT5O2DGR",
+    "name": "Madhu",
+    "email": "madhu@ksrei.com",
+    "role": "librarian",
+    "department": "Library Administration",
+    "joinDate": "Aug 2026"
   }
 ]

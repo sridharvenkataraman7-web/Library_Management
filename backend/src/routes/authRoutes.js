@@ -171,11 +171,17 @@ router.post('/register', async (req, res) => {
 
   const emailLower = email.trim().toLowerCase();
 
-  // Block librarian domain registration
-  if (emailLower.endsWith('ksrei.com')) {
+  // Enforce student domain check
+  if (!emailLower.endsWith('cse24_27@ksrce.ac.in')) {
+    if (emailLower.endsWith('ksrei.com')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Librarians with @ksrei.com emails do not need to register. Please sign in directly.'
+      });
+    }
     return res.status(400).json({
       success: false,
-      message: 'Librarians with @ksrei.com emails do not need to register. Please sign in directly.'
+      message: 'Registration is restricted to college student emails ending with cse24_27@ksrce.ac.in'
     });
   }
 
@@ -254,6 +260,14 @@ router.post('/send-otp', async (req, res) => {
   }
 
   const isLibrarianEmail = emailLower.endsWith('ksrei.com');
+  const isStudentEmail = emailLower.endsWith('cse24_27@ksrce.ac.in');
+
+  if (!isLibrarianEmail && !isStudentEmail) {
+    return res.status(400).json({
+      success: false,
+      message: 'Access restricted. Please use @ksrei.com (Librarians) or cse24_27@ksrce.ac.in (Students) emails.'
+    });
+  }
 
   // Check user is registered
   let user = userStore.get(emailLower);
