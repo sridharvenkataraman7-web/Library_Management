@@ -30,5 +30,13 @@
     "role": "librarian",
     "department": "Library Administration",
     "joinDate": "Aug 2026"
+  },
+  {
+    "id": "STU-MT5OVZA4",
+    "name": "Sridhar",
+    "email": "willsonjohn2009cse24_27@ksrce.ac.in",
+    "role": "student",
+    "department": "Computer Science & AI",
+    "joinDate": "Aug 2026"
   }
 ]
