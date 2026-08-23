@@ -1,4 +1,4 @@
-# SmartLib – Smart Digital Library Book Reservation System
+# LibraX – Smart Digital Library Book Reservation System
 
 ---
 
