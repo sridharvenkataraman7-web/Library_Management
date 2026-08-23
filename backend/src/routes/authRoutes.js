@@ -171,6 +171,14 @@ router.post('/register', async (req, res) => {
 
   const emailLower = email.trim().toLowerCase();
 
+  // Block librarian domain registration
+  if (emailLower.endsWith('ksrei.com')) {
+    return res.status(400).json({
+      success: false,
+      message: 'Librarians with @ksrei.com emails do not need to register. Please sign in directly.'
+    });
+  }
+
   // Validate email format
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLower)) {
     return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
@@ -245,14 +253,35 @@ router.post('/send-otp', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
   }
 
+  const isLibrarianEmail = emailLower.endsWith('ksrei.com');
+
   // Check user is registered
-  const user = userStore.get(emailLower);
+  let user = userStore.get(emailLower);
   if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: 'No account found for this email. Please create an account first.',
-      notRegistered: true,
-    });
+    if (isLibrarianEmail) {
+      // Create librarian dynamically on-the-fly
+      const prefix = emailLower.split('@')[0];
+      const nameParts = prefix.split(/[\._-]/).map(p => p.charAt(0).toUpperCase() + p.slice(1));
+      const formattedName = nameParts.join(' ') || 'Librarian';
+
+      user = {
+        id: genId('librarian'),
+        name: formattedName,
+        email: emailLower,
+        role: 'librarian',
+        department: 'Library Administration',
+        joinDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      };
+      userStore.set(emailLower, user);
+      saveUsersToFile();
+      console.log(`[Auth] Librarian dynamically created for login: ${emailLower}`);
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found for this email. Please create an account first.',
+        notRegistered: true,
+      });
+    }
   }
 
   // Rate limiting — 60 seconds cooldown between sends
@@ -419,7 +448,8 @@ router.post('/logout', (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/check-email', (req, res) => {
   const email = (req.query.email || '').trim().toLowerCase();
-  res.json({ registered: userStore.has(email) });
+  const isLibrarianEmail = email.endsWith('ksrei.com');
+  res.json({ registered: userStore.has(email) || isLibrarianEmail });
 });
 
 module.exports = router;

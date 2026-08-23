@@ -121,10 +121,14 @@ export const AuthPages = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (regEmail.trim().toLowerCase().endsWith("ksrei.com")) {
+      setAuthError("Librarians with @ksrei.com domain do not need to register. Please sign in directly!");
+      return;
+    }
     if (!regName.trim() || !regEmail.trim()) {
       setAuthError("Name and email are required."); return;
     }
-    await registerUser({ name: regName, email: regEmail, role: regRole, department: regDept });
+    await registerUser({ name: regName, email: regEmail, role: "student", department: regDept });
   };
 
   const switchTo = (view) => { clearMessages(); setOtp(""); setAuthView(view); setAuthStep("email"); };
@@ -133,10 +137,10 @@ export const AuthPages = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden selection:bg-indigo-500 selection:text-white">
       {/* Bg glows */}
-      <div className="absolute -top-56 -left-56 w-[520px] h-[520px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-56 -right-56 w-[520px] h-[520px] bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="w-full max-w-md relative z-10 space-y-5">
+      <div className="max-w-md w-full space-y-6 relative z-10">
 
         {/* ── Brand ─────────────────────────────────────────────────────── */}
         <div className="text-center">
@@ -195,8 +199,8 @@ export const AuthPages = () => {
                 <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center mx-auto mb-3">
                   <UserPlus className="w-6 h-6 text-indigo-400" />
                 </div>
-                <h2 className="text-xl font-extrabold text-white">Create Campus Account</h2>
-                <p className="text-xs text-slate-400">Register your Gmail to access the library system.</p>
+                <h2 className="text-xl font-extrabold text-white">Create Student Account</h2>
+                <p className="text-xs text-slate-400">Register your Gmail to access the Student Portal.</p>
               </div>
 
               <form onSubmit={handleRegister} className="space-y-4">
@@ -228,23 +232,6 @@ export const AuthPages = () => {
                   </div>
                 </div>
 
-                {/* Role */}
-                <div>
-                  <label className="block text-xs text-slate-300 font-semibold mb-1.5">Account Type *</label>
-                  <div className="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-slate-950 border border-slate-800">
-                    {[{ v: "student", label: "Student", Icon: User, active: "bg-indigo-600 shadow-indigo-600/30" },
-                      { v: "librarian", label: "Librarian", Icon: Shield, active: "bg-violet-600 shadow-violet-600/30" }
-                    ].map(({ v, label, Icon, active }) => (
-                      <button key={v} type="button"
-                        onClick={() => setRegRole(v)}
-                        className={`py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${regRole === v ? `${active} text-white shadow-md` : "text-slate-400 hover:text-white"}`}
-                      >
-                        <Icon className="w-3.5 h-3.5" />{label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Department */}
                 <div>
                   <label className="block text-xs text-slate-300 font-semibold mb-1.5">
@@ -255,8 +242,7 @@ export const AuthPages = () => {
                     className="w-full py-3 px-3 rounded-2xl bg-slate-950/60 border border-slate-700 text-white text-sm focus:outline-none focus:border-indigo-500 transition-all"
                   >
                     {["Computer Science & AI","Data Science","Mathematics","Physics",
-                      "Management","Literature","Artificial Intelligence","Electronics",
-                      "Library Administration"].map(d => <option key={d}>{d}</option>)}
+                      "Management","Literature","Artificial Intelligence","Electronics"].map(d => <option key={d}>{d}</option>)}
                   </select>
                 </div>
 
@@ -289,19 +275,19 @@ export const AuthPages = () => {
                 </div>
                 <h2 className="text-xl font-extrabold text-white">Sign In to Campus Portal</h2>
                 <p className="text-xs text-slate-400">
-                  Enter your registered Gmail — we'll send a secure one-time code.
+                  Librarians enter @ksrei.com domain email. Students enter registered Gmail.
                 </p>
               </div>
 
               <form onSubmit={handleSendOtp} className="space-y-4">
                 <div>
-                  <label className="block text-xs text-slate-300 font-semibold mb-1.5">Registered Gmail</label>
+                  <label className="block text-xs text-slate-300 font-semibold mb-1.5">Email Address</label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     <input
                       type="email" required value={email}
                       onChange={(e) => { setEmail(e.target.value); clearMessages(); }}
-                      placeholder="you@gmail.com"
+                      placeholder="you@ksrei.com or you@gmail.com"
                       className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/60 border border-slate-700 text-white text-sm placeholder:text-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                     />
                   </div>
@@ -312,7 +298,7 @@ export const AuthPages = () => {
                 >
                   {authLoading
                     ? <><Loader2 className="w-4 h-4 animate-spin" />Sending OTP…</>
-                    : <><span>Send OTP to Gmail</span><ArrowRight className="w-4 h-4" /></>}
+                    : <><span>Send OTP to Email</span><ArrowRight className="w-4 h-4" /></>}
                 </button>
               </form>
 
@@ -320,7 +306,7 @@ export const AuthPages = () => {
               <div className="flex items-start gap-2 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
                 <Lock className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" />
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  A 6-digit code is sent to your inbox. Only the real Gmail owner can log in — no password needed.
+                  A 6-digit code is sent to your inbox. Only the real email owner can log in — no password needed.
                 </p>
               </div>
 
