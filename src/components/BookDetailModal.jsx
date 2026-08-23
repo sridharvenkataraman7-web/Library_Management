@@ -13,7 +13,8 @@ import {
   ChevronRight,
   UserCheck,
   Layers,
-  Layers3
+  Layers3,
+  Plus
 } from "lucide-react";
 
 export const BookDetailModal = () => {
@@ -27,7 +28,11 @@ export const BookDetailModal = () => {
     studentProfile,
     wishlist,
     toggleWishlist,
-    setActiveTab
+    setActiveTab,
+    persona,
+    updateBookCondition,
+    requestBookAcquisition,
+    acquisitionRequests
   } = useApp();
 
   if (!selectedBook) return null;
@@ -112,7 +117,7 @@ export const BookDetailModal = () => {
               </div>
 
               {/* Book Metadata Grid */}
-              <div className="grid grid-cols-2 gap-2 text-xs p-3 rounded-2xl bg-slate-950/60 border border-slate-800">
+              <div className="grid grid-cols-2 gap-3 text-xs p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800">
                 <div>
                   <span className="text-slate-500 block">ISBN</span>
                   <span className="font-mono text-slate-200">{book.isbn}</span>
@@ -128,6 +133,31 @@ export const BookDetailModal = () => {
                 <div>
                   <span className="text-slate-500 block">Shelf Code</span>
                   <span className="font-mono text-indigo-300 font-bold">{book.shelf}</span>
+                </div>
+                <div className="col-span-2 border-t border-slate-800/80 pt-2 flex items-center justify-between">
+                  <span className="text-slate-400 font-semibold">Book Condition Tracking:</span>
+                  {persona === "librarian" ? (
+                    <select
+                      value={book.condition || "Good"}
+                      onChange={(e) => updateBookCondition(book.id, e.target.value)}
+                      className="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-2 py-0.5 focus:outline-none focus:border-violet-500"
+                    >
+                      <option value="Good">🟢 Good</option>
+                      <option value="Damaged">🔴 Damaged</option>
+                      <option value="Lost">⚫ Lost</option>
+                      <option value="Under Repair">🟡 Under Repair</option>
+                    </select>
+                  ) : (
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                      book.condition === "Good"
+                        ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                        : book.condition === "Under Repair"
+                        ? "bg-amber-500/10 text-amber-300 border-amber-500/20"
+                        : "bg-rose-500/10 text-rose-300 border-rose-500/20"
+                    }`}>
+                      {book.condition || "Good"}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -245,6 +275,24 @@ export const BookDetailModal = () => {
                   <span>Book Radar</span>
                 </button>
               )}
+
+              {book.availableCopies === 0 && (() => {
+                const req = acquisitionRequests.find(r => r.title.toLowerCase() === book.title.toLowerCase());
+                const hasReq = req && req.requestCount > 0;
+                return (
+                  <button
+                    onClick={() => requestBookAcquisition(book.title, book.author, book.department)}
+                    className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border transition-all ${
+                      hasReq
+                        ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+                        : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                    }`}
+                  >
+                    <Plus className="w-4 h-4 text-amber-400" />
+                    <span>{hasReq ? `Acquisition Requested (${req.requestCount})` : "Request Acquisition"}</span>
+                  </button>
+                );
+              })()}
             </div>
 
             <div className="w-full sm:w-auto">

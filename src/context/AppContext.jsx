@@ -268,7 +268,43 @@ export const AppProvider = ({ children }) => {
   // ── State Collections ─────────────────────────────────────────────────────────
   const [books, setBooks] = useState(() => {
     const saved = localStorage.getItem("smartlib_books");
-    return saved ? JSON.parse(saved) : INITIAL_BOOKS;
+    const base = saved ? JSON.parse(saved) : INITIAL_BOOKS;
+    const conditions = ["Good", "Good", "Good", "Under Repair", "Good", "Damaged", "Good", "Under Repair"];
+    return base.map((b, idx) => ({
+      ...b,
+      condition: b.condition || conditions[idx % conditions.length]
+    }));
+  });
+
+  const [seats, setSeats] = useState(() => {
+    const saved = localStorage.getItem("smartlib_seats");
+    if (saved) return JSON.parse(saved);
+    const arr = [];
+    for (let f = 1; f <= 3; f++) {
+      for (let s = 1; s <= 8; s++) {
+        arr.push({
+          id: `Floor ${f} - Seat ${s}`,
+          floor: `Floor ${f}`,
+          number: s,
+          status: Math.random() > 0.45 ? "Available" : "Occupied"
+        });
+      }
+    }
+    return arr;
+  });
+
+  const [activeSeatSession, setActiveSeatSession] = useState(() => {
+    const saved = localStorage.getItem("smartlib_seat_session");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [acquisitionRequests, setAcquisitionRequests] = useState(() => {
+    const saved = localStorage.getItem("smartlib_acquisition_requests");
+    return saved ? JSON.parse(saved) : [
+      { id: "REQ-01", title: "Designing Data-Intensive Applications", author: "Martin Kleppmann", department: "Computer Science", requestCount: 8, status: "Pending" },
+      { id: "REQ-02", title: "Deep Learning", author: "Ian Goodfellow", department: "Artificial Intelligence", requestCount: 12, status: "Pending" },
+      { id: "REQ-03", title: "Clean Code", author: "Robert C. Martin", department: "Computer Science", requestCount: 5, status: "Pending" }
+    ];
   });
 
   const [notifications, setNotifications] = useState(() => {
@@ -300,6 +336,111 @@ export const AppProvider = ({ children }) => {
   useEffect(() => { localStorage.setItem("smartlib_loans", JSON.stringify(studentLoans)); }, [studentLoans]);
   useEffect(() => { localStorage.setItem("smartlib_wishlist", JSON.stringify(wishlist)); }, [wishlist]);
   useEffect(() => { localStorage.setItem("smartlib_users", JSON.stringify(registeredUsers)); }, [registeredUsers]);
+  useEffect(() => { localStorage.setItem("smartlib_seats", JSON.stringify(seats)); }, [seats]);
+  useEffect(() => { localStorage.setItem("smartlib_acquisition_requests", JSON.stringify(acquisitionRequests)); }, [acquisitionRequests]);
+  useEffect(() => {
+    if (activeSeatSession) {
+      localStorage.setItem("smartlib_seat_session", JSON.stringify(activeSeatSession));
+    } else {
+      localStorage.removeItem("smartlib_seat_session");
+    }
+  }, [activeSeatSession]);
+
+  // Seat session release timer check
+  useEffect(() => {
+    if (!activeSeatSession) return;
+    const t = setInterval(() => {
+      setActiveSeatSession(prev => {
+        if (!prev) return null;
+        if (prev.secondsLeft <= 1) {
+          setSeats(curr => curr.map(s => s.id === prev.seatId ? { ...s, status: "Available" } : s));
+          return null;
+        }
+        return { ...prev, secondsLeft: prev.secondsLeft - 1 };
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [activeSeatSession]);
+
+  // Seat action handlers
+  const checkInSeat = (seatId) => {
+    setSeats(prev => prev.map(s => s.id === seatId ? { ...s, status: "Occupied" } : s));
+    setActiveSeatSession({
+      seatId,
+      checkInTime: new Date().toISOString(),
+      durationMinutes: 45,
+      secondsLeft: 45 * 60
+    });
+  };
+
+  const releaseSeat = () => {
+    if (activeSeatSession) {
+      setSeats(prev => prev.map(s => s.id === activeSeatSession.seatId ? { ...s, status: "Available" } : s));
+    }
+    setActiveSeatSession(null);
+  };
+
+  const extendSeatSession = () => {
+    setActiveSeatSession(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        durationMinutes: prev.durationMinutes + 15,
+        secondsLeft: prev.secondsLeft + 15 * 60
+      };
+    });
+  };
+
+  // Acquisition action handlers
+  const requestBookAcquisition = (title, author, department) => {
+    setAcquisitionRequests(prev => {
+      const existing = prev.find(r => r.title.toLowerCase() === title.toLowerCase());
+      if (existing) {
+        return prev.map(r => r.id === existing.id ? { ...r, requestCount: r.requestCount + 1 } : r);
+      }
+      return [...prev, {
+        id: `REQ-${Date.now()}`,
+        title,
+        author,
+        department: department || "Computer Science",
+        requestCount: 1,
+        status: "Pending"
+      }];
+    });
+  };
+
+  const approveAcquisition = (reqId) => {
+    const req = acquisitionRequests.find(r => r.id === reqId);
+    if (!req) return;
+    setAcquisitionRequests(prev => prev.map(r => r.id === reqId ? { ...r, status: "Acquired" } : r));
+    setBooks(prev => {
+      const exist = prev.find(b => b.title.toLowerCase() === req.title.toLowerCase());
+      if (exist) {
+        return prev.map(b => b.id === exist.id ? {
+          ...b,
+          totalCopies: b.totalCopies + 2,
+          availableCopies: b.availableCopies + 2,
+          status: "Available"
+        } : b);
+      }
+      return prev;
+    });
+    setNotifications(prev => [
+      {
+        id: `NOTIF-${Date.now()}`,
+        title: "Copies Acquired!",
+        message: `Acquired 2 new copies of '${req.title}'.`,
+        type: "CATALOGUE_UPDATE",
+        timestamp: "Just now",
+        isRead: false
+      },
+      ...prev
+    ]);
+  };
+
+  const updateBookCondition = (bookId, condition) => {
+    setBooks(prev => prev.map(b => b.id === bookId ? { ...b, condition } : b));
+  };
 
   // ── Persona Switch ────────────────────────────────────────────────────────────
   const switchPersona = (role) => {
@@ -496,6 +637,9 @@ export const AppProvider = ({ children }) => {
         librarianProfile,
         // Books & State
         books,
+        seats,
+        activeSeatSession,
+        acquisitionRequests,
         notifications,
         unreadNotifCount,
         studentLoans,
@@ -525,6 +669,12 @@ export const AppProvider = ({ children }) => {
         updateBook,
         deleteBook,
         updateReservationStatus,
+        checkInSeat,
+        releaseSeat,
+        extendSeatSession,
+        requestBookAcquisition,
+        approveAcquisition,
+        updateBookCondition,
       }}
     >
       {children}

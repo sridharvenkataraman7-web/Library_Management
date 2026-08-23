@@ -24,7 +24,9 @@ export const LibrarianDashboard = () => {
     studentLoans,
     setIsAddBookOpen,
     setActiveTab,
-    updateReservationStatus
+    updateReservationStatus,
+    acquisitionRequests,
+    approveAcquisition
   } = useApp();
 
   // Issue/Return simulator input state
@@ -253,6 +255,69 @@ export const LibrarianDashboard = () => {
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      {/* 📈 NEW FEATURE: Book Acquisition System (Librarian Queue) */}
+      <div className="p-6 rounded-3xl glass-card border-slate-800 space-y-4">
+        <div className="flex items-center gap-2 text-violet-300">
+          <Sparkles className="w-5 h-5 text-violet-400" />
+          <h3 className="text-base font-bold text-white">Book Acquisition System (Requested Titles)</h3>
+        </div>
+        <p className="text-xs text-slate-400 font-medium">Review book requests placed by students for copies that are currently unavailable. Acquire copies to fulfill requests.</p>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs text-slate-300">
+            <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider text-[10px] font-bold">
+              <tr>
+                <th className="p-3">Title</th>
+                <th className="p-3">Author</th>
+                <th className="p-3">Department</th>
+                <th className="p-3 text-center">Requests</th>
+                <th className="p-3">Status</th>
+                <th className="p-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/60">
+              {acquisitionRequests.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-6 text-center text-slate-500">
+                    No active acquisition requests.
+                  </td>
+                </tr>
+              ) : (
+                acquisitionRequests.map((req) => (
+                  <tr key={req.id} className="hover:bg-slate-800/40">
+                    <td className="p-3 font-semibold text-white">{req.title}</td>
+                    <td className="p-3 text-slate-400">{req.author}</td>
+                    <td className="p-3 text-indigo-400 font-medium">{req.department}</td>
+                    <td className="p-3 text-center font-mono font-bold text-violet-400">{req.requestCount}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        req.status === "Acquired"
+                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                          : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                      }`}>
+                        {req.status}
+                      </span>
+                    </td>
+                    <td className="p-3 text-right">
+                      {req.status === "Pending" ? (
+                        <button
+                          onClick={() => approveAcquisition(req.id)}
+                          className="px-3 py-1 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-[11px] font-bold shadow-md shadow-violet-600/25 transition-all"
+                        >
+                          Acquire 2 Copies
+                        </button>
+                      ) : (
+                        <span className="text-[11px] text-slate-500 font-semibold uppercase">Acquired</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

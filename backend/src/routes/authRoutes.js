@@ -82,12 +82,23 @@ const genId        = (role) => `${role === 'librarian' ? 'LIB' : 'STU'}-${Date.n
 const isGmailConfigured = () =>
   process.env.GMAIL_USER &&
   process.env.GMAIL_APP_PASSWORD &&
-  process.env.GMAIL_USER !== 'your.email@gmail.com';
+  process.env.GMAIL_USER !== 'your.email@gmail.com' &&
+  process.env.GMAIL_USER.trim() !== '' &&
+  process.env.GMAIL_APP_PASSWORD !== 'your_16_char_app_password' &&
+  process.env.GMAIL_APP_PASSWORD.trim() !== '';
 
 const createTransporter = () =>
   nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
   });
 
 const buildOtpEmail = (otp, name, role) => `

@@ -298,46 +298,7 @@ export const Header = () => {
                 </div>
 
                 <div className="py-2 space-y-1">
-                  <p className="text-[10px] uppercase font-bold text-slate-400 px-2 py-1">
-                    Switch Campus Persona
-                  </p>
-                  <button
-                    onClick={() => {
-                      switchPersona("student");
-                      setShowPersonaMenu(false);
-                    }}
-                    className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      persona === "student"
-                        ? "bg-indigo-600/20 text-indigo-300 border border-indigo-500/30"
-                        : "text-slate-300 hover:bg-slate-800"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-indigo-400" />
-                      <span>Student View (Alex Morgan)</span>
-                    </div>
-                    {persona === "student" && <span className="text-[10px] font-bold text-indigo-400">ACTIVE</span>}
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      switchPersona("librarian");
-                      setShowPersonaMenu(false);
-                    }}
-                    className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      persona === "librarian"
-                        ? "bg-violet-600/20 text-violet-300 border border-violet-500/30"
-                        : "text-slate-300 hover:bg-slate-800"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-violet-400" />
-                      <span>Librarian View (Dr. Sarah Lin)</span>
-                    </div>
-                    {persona === "librarian" && <span className="text-[10px] font-bold text-violet-400">ACTIVE</span>}
-                  </button>
-
-                  <div className="pt-2 border-t border-slate-800">
+                  <div className="pt-1">
                     <button
                       onClick={() => {
                         setShowPersonaMenu(false);

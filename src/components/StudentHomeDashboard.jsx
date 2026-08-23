@@ -15,7 +15,12 @@ import {
   BookmarkCheck,
   TrendingUp,
   Award,
-  BookCheck
+  BookCheck,
+  Armchair,
+  Activity,
+  History,
+  Check,
+  RotateCcw
 } from "lucide-react";
 
 
@@ -29,8 +34,25 @@ export const StudentHomeDashboard = () => {
     setRadarTargetBook,
     setActiveTab,
     globalSearch,
-    setGlobalSearch
+    setGlobalSearch,
+    seats,
+    activeSeatSession,
+    checkInSeat,
+    releaseSeat,
+    extendSeatSession,
+    acquisitionRequests
   } = useApp();
+
+  const [seatFloor, setSeatFloor] = React.useState("Floor 1");
+  const filteredSeats = seats.filter((s) => s.floor === seatFloor);
+
+  // Search History mock state
+  const [searchHistory, setSearchHistory] = React.useState([
+    "Distributed Systems",
+    "Ian Goodfellow",
+    "Scalability",
+    "Strang Linear Algebra"
+  ]);
 
   // Metrics computation
   const totalBooksCount = books.length;
@@ -399,26 +421,185 @@ export const StudentHomeDashboard = () => {
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
+
+          {/* 🌟 NEW FEATURE: Seat Session Management */}
+          <div className="p-6 rounded-3xl glass-card border-indigo-500/20 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-300">
+                <Armchair className="w-5 h-5 text-indigo-400" />
+                <h3 className="text-base font-bold text-white">Study Seat Sessions</h3>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Live Map
+              </span>
+            </div>
+
+            {activeSeatSession ? (
+              // Active Session UI
+              <div className="space-y-4 p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30">
+                <div className="text-center space-y-1">
+                  <p className="text-xs text-indigo-300 font-semibold uppercase tracking-wider">Checked In Seat</p>
+                  <p className="text-lg font-extrabold text-white">{activeSeatSession.seatId}</p>
+                </div>
+
+                {/* Countdown display */}
+                <div className="flex items-center justify-center gap-4 py-2 border-y border-slate-800/80">
+                  <div className="text-center">
+                    <p className="text-[10px] text-slate-400">Remaining Time</p>
+                    <p className="text-2xl font-mono font-extrabold text-amber-400">
+                      {Math.floor(activeSeatSession.secondsLeft / 60)}:
+                      {String(activeSeatSession.secondsLeft % 60).padStart(2, "0")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={extendSeatSession}
+                    className="py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all"
+                  >
+                    +15 Mins
+                  </button>
+                  <button
+                    onClick={releaseSeat}
+                    className="py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all"
+                  >
+                    Release Seat
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // Booking Seat UI
+              <div className="space-y-3">
+                <p className="text-xs text-slate-400">Reserve a desk for quiet study. Desk automatically releases if inactive.</p>
+                
+                {/* Floor select */}
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-[11px] text-slate-400 font-semibold">Select Floor:</span>
+                  <select
+                    value={seatFloor}
+                    onChange={(e) => setSeatFloor(e.target.value)}
+                    className="py-1 px-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none"
+                  >
+                    <option value="Floor 1">Floor 1 (Math)</option>
+                    <option value="Floor 2">Floor 2 (CS & AI)</option>
+                    <option value="Floor 3">Floor 3 (Quiet Hub)</option>
+                  </select>
+                </div>
+
+                {/* Grid */}
+                <div className="grid grid-cols-4 gap-2 pt-1">
+                  {filteredSeats.map((seat) => {
+                    const isOccupied = seat.status === "Occupied";
+                    return (
+                      <button
+                        key={seat.id}
+                        disabled={isOccupied}
+                        onClick={() => checkInSeat(seat.id)}
+                        className={`py-2 text-[10px] font-mono font-bold rounded-lg border transition-all ${
+                          isOccupied
+                            ? "bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed"
+                            : "bg-indigo-500/10 border-indigo-500/30 text-indigo-300 hover:bg-indigo-500 hover:text-white"
+                        }`}
+                      >
+                        S{seat.number}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Recommended Books Grid */}
+      {/* 🌟 NEW FEATURE: Demand Analytics Widget */}
+      <div className="p-6 rounded-3xl glass-card border-slate-800 space-y-4">
+        <div className="flex items-center gap-2 text-indigo-300">
+          <Activity className="w-5 h-5 text-indigo-400" />
+          <h3 className="text-base font-bold text-white">Campus Book Demand Analytics</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Most Borrowed */}
+          <div className="space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/80">
+            <h4 className="text-xs font-bold text-indigo-300 uppercase tracking-wider">🔥 Most Borrowed Title</h4>
+            <div>
+              <p className="text-xs font-bold text-white leading-tight">Designing Data-Intensive Applications</p>
+              <p className="text-[10px] text-slate-500">8 total loans this semester</p>
+            </div>
+            <div className="w-full bg-slate-800 rounded-full h-1.5 mt-2">
+              <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: "85%" }} />
+            </div>
+          </div>
+
+          {/* Most Reserved */}
+          <div className="space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/80">
+            <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">⭐ Most Queue Reservations</h4>
+            <div>
+              <p className="text-xs font-bold text-white leading-tight">Deep Learning</p>
+              <p className="text-[10px] text-slate-500">3 students waiting in line</p>
+            </div>
+            <div className="w-full bg-slate-800 rounded-full h-1.5 mt-2">
+              <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: "65%" }} />
+            </div>
+          </div>
+
+          {/* Highly Demanded / Unavailable */}
+          <div className="space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/80">
+            <h4 className="text-xs font-bold text-rose-300 uppercase tracking-wider">📈 Frequently Requested</h4>
+            <div>
+              <p className="text-xs font-bold text-white leading-tight">Introduction to Algorithms (CLRS)</p>
+              <p className="text-[10px] text-slate-500">5 pending library order requests</p>
+            </div>
+            <div className="w-full bg-slate-800 rounded-full h-1.5 mt-2">
+              <div className="bg-rose-500 h-1.5 rounded-full" style={{ width: "50%" }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recommended Books Grid (Smart Book Recommendation) */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-indigo-400" />
-            <span>Recommended for Your Curriculum</span>
-          </h2>
-          <button
-            onClick={() => setActiveTab("catalogue")}
-            className="text-xs font-semibold text-indigo-400 hover:text-indigo-300"
-          >
-            Explore Full Catalogue ➔
-          </button>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-indigo-400" />
+              <span>Smart Book Recommendations ({studentProfile.department})</span>
+            </h2>
+            <button
+              onClick={() => setActiveTab("catalogue")}
+              className="text-xs font-semibold text-indigo-400 hover:text-indigo-300"
+            >
+              Explore Full Catalogue ➔
+            </button>
+          </div>
+
+          {/* Search History Pills */}
+          <div className="flex flex-wrap items-center gap-2 py-1">
+            <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex items-center gap-1">
+              <History className="w-3 h-3" /> Recent Searches:
+            </span>
+            {searchHistory.map((query, i) => (
+              <span
+                key={i}
+                onClick={() => {
+                  setGlobalSearch(query);
+                  setActiveTab("catalogue");
+                }}
+                className="text-[10px] px-2.5 py-1 rounded-full bg-slate-905 border border-slate-800 text-slate-300 cursor-pointer hover:bg-slate-800 hover:text-white transition-all font-medium"
+              >
+                {query}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {recommendedBooks.map((book) => (
+          {books
+            .filter((b) => b.department.toLowerCase().includes(studentProfile.department.toLowerCase().split(" ")[0]))
+            .slice(0, 4)
+            .map((book) => (
             <div
               key={book.id}
               onClick={() => setSelectedBook(book)}
